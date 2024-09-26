@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const Perfil(
-    title: 'perfil',
+  runApp(const MaterialApp(
+    home: Perfil(title: 'perfil'),
   ));
 }
 
@@ -15,7 +15,117 @@ class Perfil extends StatefulWidget {
   State<Perfil> createState() => _PerfilState();
 }
 
+@override
 class _PerfilState extends State<Perfil> {
+  String userName = 'João';
+  String email = 'email@email.com';
+  String senha = '*****';
+
+  void _showEditNameDialog() {
+    final TextEditingController _controller =
+        TextEditingController(text: userName);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Editar Nome'),
+          content: TextField(
+            controller: _controller,
+            decoration: const InputDecoration(labelText: 'Novo Nome'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Fecha o diálogo
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  userName = _controller.text; // Atualiza o nome
+                });
+                Navigator.of(context).pop(); // Fecha o diálogo
+              },
+              child: Text('Salvar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showEditEmailDialog() {
+    final TextEditingController _controller =
+        TextEditingController(text: email);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Editar Email'),
+          content: TextField(
+            controller: _controller,
+            decoration: const InputDecoration(labelText: 'Novo Email'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Fecha o diálogo
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  email = _controller.text; // Atualiza o nome
+                });
+                Navigator.of(context).pop(); // Fecha o diálogo
+              },
+              child: Text('Salvar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showEditSenhaDialog() {
+    final TextEditingController _controller =
+        TextEditingController(text: senha);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Editar senha'),
+          content: TextField(
+            controller: _controller,
+            decoration: const InputDecoration(labelText: 'Nova senha'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Fecha o diálogo
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  senha = _controller.text; // Atualiza o nome
+                });
+                Navigator.of(context).pop(); // Fecha o diálogo
+              },
+              child: Text('Salvar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -90,7 +200,6 @@ class _PerfilState extends State<Perfil> {
                 ],
               ),
             ),
-
             Positioned(
               top: 300, // Ajuste a posição vertical
               left: 100, // Ajuste a posição horizontal
@@ -109,7 +218,7 @@ class _PerfilState extends State<Perfil> {
                         ),
                       ),
                       Text(
-                        'Nome', // Subtexto
+                        '${userName}', // Subtexto
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -117,25 +226,17 @@ class _PerfilState extends State<Perfil> {
                       ),
                     ],
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      // Ação ao clicar no botão de edição
-                      print("Botão de edição clicado!");
-                      // Coloque sua ação aqui
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8), // Espaçamento do botão
-                      decoration: BoxDecoration(
-                        color: Colors.blue, // Cor de fundo do botão
+                  ElevatedButton(
+                    onPressed:
+                        _showEditNameDialog, // Chama o método para mostrar o diálogo
+
+                    child: Text('Editar'), // Botão para abrir o diálogo
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blue, // Cor do texto
+                      shape: RoundedRectangleBorder(
                         borderRadius:
-                            BorderRadius.circular(5), // Bordas arredondadas
-                      ),
-                      child: Text(
-                        'Editar', // Texto do botão
-                        style: TextStyle(
-                          color: Colors.white, // Cor do texto do botão
-                        ),
+                            BorderRadius.circular(5), // Arredondar os cantos
                       ),
                     ),
                   ),
@@ -160,7 +261,7 @@ class _PerfilState extends State<Perfil> {
                         ),
                       ),
                       Text(
-                        'email@email.com', // Subtexto
+                        '${email}', // Subtexto
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -168,25 +269,17 @@ class _PerfilState extends State<Perfil> {
                       ),
                     ],
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      // Ação ao clicar no botão de edição
-                      print("Botão de edição clicado!");
-                      // Coloque sua ação aqui
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8), // Espaçamento do botão
-                      decoration: BoxDecoration(
-                        color: Colors.blue, // Cor de fundo do botão
+                  ElevatedButton(
+                    onPressed:
+                        _showEditEmailDialog, // Chama o método para mostrar o diálogo
+
+                    child: Text('Editar'), // Botão para abrir o diálogo
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blue, // Cor do texto
+                      shape: RoundedRectangleBorder(
                         borderRadius:
-                            BorderRadius.circular(5), // Bordas arredondadas
-                      ),
-                      child: Text(
-                        'Editar', // Texto do botão
-                        style: TextStyle(
-                          color: Colors.white, // Cor do texto do botão
-                        ),
+                            BorderRadius.circular(5), // Arredondar os cantos
                       ),
                     ),
                   ),
@@ -211,7 +304,7 @@ class _PerfilState extends State<Perfil> {
                         ),
                       ),
                       Text(
-                        '********', // Subtexto
+                        '${senha}', // Subtexto
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -219,125 +312,23 @@ class _PerfilState extends State<Perfil> {
                       ),
                     ],
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      // Ação ao clicar no botão de edição
-                      print("Botão de edição clicado!");
-                      // Coloque sua ação aqui
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8), // Espaçamento do botão
-                      decoration: BoxDecoration(
-                        color: Colors.blue, // Cor de fundo do botão
-                        borderRadius:
-                            BorderRadius.circular(5), // Bordas arredondadas
-                      ),
-                      child: Text(
-                        'Editar', // Texto do botão
-                        style: TextStyle(
-                          color: Colors.white, // Cor do texto do botão
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              top: 510, // Ajuste a posição vertical
-              left: 100, // Ajuste a posição horizontal
-              right: 100, // Ajusta a margem direita
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      // Ação ao clicar no botão de edição
-                      print("Botão de edição clicado!");
-                      // Coloque sua ação aqui
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 109, vertical: 8), // Espaçamento do botão
-                      decoration: BoxDecoration(
-                        color: Colors.green, // Cor de fundo do botão
-                        borderRadius:
-                            BorderRadius.circular(5), // Bordas arredondadas
-                      ),
-                      child: Text(
-                        'Salvar', // Texto do botão
-                        style: TextStyle(
-                          color: Colors.white, // Cor do texto do botão
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              top: 560, // Ajuste a posição vertical
-              left: 100, // Ajuste a posição horizontal
-              right: 100, // Ajusta a margem direita
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      // Ação ao clicar no botão de edição
-                      print("Botão de edição clicado!");
-                      // Coloque sua ação aqui
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 100, vertical: 8), // Espaçamento do botão
-                      decoration: BoxDecoration(
-                        color: Colors.red, // Cor de fundo do botão
-                        borderRadius:
-                            BorderRadius.circular(5), // Bordas arredondadas
-                      ),
-                      child: Text(
-                        'Cancelar', // Texto do botão
-                        style: TextStyle(
-                          color: Colors.white, // Cor do texto do botão
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                  ElevatedButton(
+                    onPressed:
+                        _showEditSenhaDialog, // Chama o método para mostrar o diálogo
 
-            // Botão no canto superior direito
-            Positioned(
-              top: 16, // Distância do topo da tela
-              right: 16, // Distância da borda direita
-              child: ClipOval(
-                child: Material(
-                  color: Colors.red, // Cor de fundo do botão
-                  child: InkWell(
-                    splashColor: Colors.blue, // Efeito de splash ao clicar
-                    onTap: () {
-                      //fazer logout do sistema
-                    },
-                    child: const SizedBox(
-                      width: 56, // Largura do botão (circular)
-                      height: 56, // Altura do botão (circular)
-                      child: Icon(
-                        Icons.logout, // Ícone de logout
-                        color: Colors.white, // Cor do ícone
-                        size: 30, // Tamanho do ícone
+                    child: Text('Editar'), // Botão para abrir o diálogo
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blue, // Cor do texto
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(5), // Arredondar os cantos
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
-            /*Positioned(
-                child: ClipOval(
-              child: Column(children: [
-                const Text('teste'),
-              ]),
-            )),*/
           ],
         ),
       ),
