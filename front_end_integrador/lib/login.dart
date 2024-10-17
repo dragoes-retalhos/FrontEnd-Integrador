@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
-                hintText: 'Número do celular ou email',
+                hintText: 'Email',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5.0),
                   borderSide: BorderSide.none,
