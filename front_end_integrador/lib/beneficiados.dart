@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'perfil.dart';
 
 class BeneficiadosPage extends StatefulWidget {
   @override
@@ -52,10 +53,16 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
             child: Icon(Icons.notifications, color: Colors.white, size: 28),
           ),
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.account_circle, color: Colors.white, size: 28),
-          ),
+            icon: Icon(Icons.account_circle, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PerfilPage()),
+                );
+  },
+)
         ],
         toolbarHeight: 80, // Altura ajustada para 80px
       ),

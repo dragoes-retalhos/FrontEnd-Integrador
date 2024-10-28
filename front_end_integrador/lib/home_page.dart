@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'emprestimo.dart';
+import 'perfil.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -56,10 +57,16 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
             child: Icon(Icons.notifications, color: Colors.white, size: 28),
           ),
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.account_circle, color: Colors.white, size: 28),
-          ),
+            icon: Icon(Icons.account_circle, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PerfilPage()),
+                );
+  },
+)
         ],
         toolbarHeight: 80, // Altura ajustada para 80px
       ),
