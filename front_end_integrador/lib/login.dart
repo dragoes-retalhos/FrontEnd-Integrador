@@ -13,7 +13,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> login() async {
-    final String apiUrl = 'http://localhost:8080/api/login/authentication'; // Substitua pela sua URL da API
+    final String apiUrl = 'http://localhost:8080/api/login/authentication'; 
 
     User user = User(
       email: emailController.text,
@@ -28,10 +28,10 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (response.statusCode == 200) {
-        // Login bem-sucedido
-        final responseData = jsonDecode(response.body);
-        // Processar a resposta (por exemplo, salvar token)
-        print('Login bem-sucedido: $responseData');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()), // Ajustar para sua tela inicial do vitor
+        );
       } else {
         // Exibir mensagem de erro
         print('Falha no login: ${response.body}');
