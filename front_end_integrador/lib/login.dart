@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'models/user.dart'; // Importando a classe User (ajuste conforme a estrutura do seu projeto)
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -6,6 +9,44 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  Future<void> login() async {
+    final String apiUrl = 'http://localhost:8080/api/login/authentication'; // Substitua pela sua URL da API
+
+    User user = User(
+      email: emailController.text,
+      password: passwordController.text,
+    );
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(user.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        // Login bem-sucedido
+        final responseData = jsonDecode(response.body);
+        // Processar a resposta (por exemplo, salvar token)
+        print('Login bem-sucedido: $responseData');
+      } else {
+        // Exibir mensagem de erro
+        print('Falha no login: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Falha no login: ${response.body}')),
+        );
+      }
+    } catch (e) {
+      print('Erro ao fazer a requisição: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao fazer a requisição: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,6 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             SizedBox(height: 90),
             TextField(
+              controller: emailController,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
@@ -34,6 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             SizedBox(height: 40),
             TextField(
+              controller: passwordController,
               obscureText: true,
               decoration: InputDecoration(
                 filled: true,
@@ -48,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 35),
             ElevatedButton(
               onPressed: () {
-                // Lógica de login
+                login(); // Chamar a função de login
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFE1004E),
@@ -68,6 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 45),
             TextButton(
               onPressed: () {
+                // Navegar para a tela de recuperação de senha
               },
               child: Text(
                 'Esqueceu a senha?',
