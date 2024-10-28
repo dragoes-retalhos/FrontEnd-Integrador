@@ -6,7 +6,7 @@ class EmprestimoPage extends StatefulWidget {
 }
 
 class _EmprestimoPageState extends State<EmprestimoPage> {
-  int _selectedIndex = 1; 
+  int _selectedIndex = 1;
 
   void _onItemTapped(int index) {
     setState(() {
