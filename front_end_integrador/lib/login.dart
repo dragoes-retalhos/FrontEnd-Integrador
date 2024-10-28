@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'home_page.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -48,7 +49,11 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 35),
             ElevatedButton(
               onPressed: () {
-                // Lógica de login
+                // Simular login bem-sucedido
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomePage()),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFE1004E),
@@ -67,8 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             SizedBox(height: 45),
             TextButton(
-              onPressed: () {
-              },
+              onPressed: () {},
               child: Text(
                 'Esqueceu a senha?',
                 style: TextStyle(
