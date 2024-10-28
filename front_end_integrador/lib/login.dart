@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'models/user.dart'; // Importando a classe User (ajuste conforme a estrutura do seu projeto)
+import 'models/user.dart'; 
 
 class LoginScreen extends StatefulWidget {
   @override
