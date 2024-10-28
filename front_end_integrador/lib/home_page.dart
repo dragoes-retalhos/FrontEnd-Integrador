@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'emprestimo.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -46,11 +47,11 @@ class HomePage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildImageButton(
-                    'assets/images/icon_emprestimo.png', 'Empréstimo'),
+                    context, 'assets/images/icon_emprestimo.png', 'Empréstimo'),
                 _buildImageButton(
-                    'assets/images/icon_inventario.png', 'Inventário'),
+                    context, 'assets/images/icon_inventario.png', 'Inventário'),
                 _buildImageButton(
-                    'assets/images/icon_relatorio.png', 'Relatórios'),
+                    context, 'assets/images/icon_relatorio.png', 'Relatórios'),
               ],
             ),
             SizedBox(height: 20),
@@ -127,45 +128,56 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildImageButton(String imagePath, String label) {
-    return Column(
-      children: [
-        Container(
-          width: 120,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                spreadRadius: 1,
-                blurRadius: 5,
-              ),
-            ],
-          ),
-          padding: EdgeInsets.all(12),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                imagePath,
-                width: 60,
-                height: 60,
-              ),
-              SizedBox(
-                  height: 8), // Aumentar o espaçamento entre imagem e label
-              Text(
-                label,
-                style: TextStyle(
-                  color: Color.fromRGBO(53, 53, 53, 100),
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+  Widget _buildImageButton(
+      BuildContext context, String imagePath, String label) {
+    return GestureDetector(
+      onTap: () {
+        if (label == 'Empréstimo') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EmprestimoPage()),
+          );
+        }
+        // Adicione navegação para outras páginas, se necessário
+      },
+      child: Column(
+        children: [
+          Container(
+            width: 120,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  spreadRadius: 1,
+                  blurRadius: 5,
                 ),
-              ),
-            ],
+              ],
+            ),
+            padding: EdgeInsets.all(12),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  imagePath,
+                  width: 60,
+                  height: 60,
+                ),
+                SizedBox(height: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: Color.fromRGBO(53, 53, 53, 100),
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
