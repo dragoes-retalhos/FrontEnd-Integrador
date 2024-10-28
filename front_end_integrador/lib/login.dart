@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart';
+import 'inicial.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
-                hintText: 'Número do celular ou email',
+                hintText: 'Email',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5.0),
                   borderSide: BorderSide.none,
@@ -49,11 +49,16 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 35),
             ElevatedButton(
               onPressed: () {
-                // Simular login bem-sucedido
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomePage()),
+                // Lógica de login
+                // entrada temporaria
+                Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => TelaInicial()),
                 );
+
+
+
+                //////////
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFE1004E),
