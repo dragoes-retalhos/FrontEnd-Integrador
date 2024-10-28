@@ -1,6 +1,32 @@
 import 'package:flutter/material.dart';
 
-class EmprestimoPage extends StatelessWidget {
+class EmprestimoPage extends StatefulWidget {
+  @override
+  _EmprestimoPageState createState() => _EmprestimoPageState();
+}
+
+class _EmprestimoPageState extends State<EmprestimoPage> {
+  int _selectedIndex = 1; 
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (index == 0) {
+      Navigator.pushReplacementNamed(
+          context, '/home'); // Navega para a página inicial
+    } else if (index == 1) {
+      // Já estamos na página de empréstimo, então não faça nada
+    } else if (index == 2) {
+      Navigator.pushReplacementNamed(
+          context, '/beneficiados'); // Navega para a página de beneficiados
+    } else if (index == 3) {
+      Navigator.pushReplacementNamed(
+          context, '/itens'); // Navega para a página de itens
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,11 +94,13 @@ class EmprestimoPage extends StatelessWidget {
                     onPressed: () {
                       // Ação de confirmação
                     },
-                    child: Text('Confirmar',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                        )),
+                    child: Text(
+                      'Confirmar',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -86,10 +114,9 @@ class EmprestimoPage extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.2), // Cor da sombra
-              spreadRadius: 5, // Expansão da sombra
-              blurRadius: 7, // Desfoque da sombra
-              offset:
-                  Offset(0, 3),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: Offset(0, 3),
             ),
           ],
         ),
@@ -113,9 +140,11 @@ class EmprestimoPage extends StatelessWidget {
               label: 'Itens',
             ),
           ],
+          currentIndex: _selectedIndex,
           selectedItemColor: Color(0xFF1A00FF),
           unselectedItemColor: Color.fromRGBO(64, 64, 64, 100),
           backgroundColor: Colors.white,
+          onTap: _onItemTapped,
         ),
       ),
     );
