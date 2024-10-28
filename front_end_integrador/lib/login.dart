@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'inicial.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -49,6 +50,15 @@ class _LoginScreenState extends State<LoginScreen> {
             ElevatedButton(
               onPressed: () {
                 // Lógica de login
+                // entrada temporaria
+                Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => TelaInicial()),
+                );
+
+
+
+                //////////
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFE1004E),
