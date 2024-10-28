@@ -5,7 +5,8 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF0000FF), // Azul forte
+        automaticallyImplyLeading: false,
+        backgroundColor: Color(0xFF0000FF),
         title: Padding(
           padding: const EdgeInsets.only(left: 30.0, top: 5.0),
           child: Column(

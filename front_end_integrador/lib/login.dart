@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'inicial.dart';
+import 'home_page.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -53,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // entrada temporaria
                 Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => TelaInicial()),
+              MaterialPageRoute(builder: (context) => HomePage()),
                 );
 
 
