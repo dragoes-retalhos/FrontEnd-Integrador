@@ -11,6 +11,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool loginFailed = false; // Variável para monitorar o erro de login
 
   Future<void> login() async {
     final String apiUrl = 'http://localhost:8080/api/login/authentication'; 
@@ -30,11 +31,13 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomePage()), // Ajustar para sua tela inicial do vitor
+          MaterialPageRoute(builder: (context) => HomePage()), 
         );
       } else {
-        // Exibir mensagem de erro
-        print('Falha no login: ${response.body}');
+        //erro de login
+        setState(() {
+          loginFailed = true;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Falha no login: ${response.body}')),
         );
@@ -67,10 +70,14 @@ class _LoginScreenState extends State<LoginScreen> {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
-                hintText: 'Email',
+                hintText: loginFailed ? 'Login inválido' : 'Email',
+                hintStyle: TextStyle(color: loginFailed ? Colors.red : Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5.0),
-                  borderSide: BorderSide.none,
+                  borderSide: BorderSide(
+                    color: loginFailed ? Colors.red : Colors.transparent, //caso de erro
+                    width: 2.0,
+                  ),
                 ),
               ),
             ),
@@ -81,16 +88,23 @@ class _LoginScreenState extends State<LoginScreen> {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
-                hintText: 'Senha',
+                hintText: loginFailed ? 'Login inválido' : 'Senha',
+                hintStyle: TextStyle(color: loginFailed ? Colors.red : Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5.0),
-                  borderSide: BorderSide.none,
+                  borderSide: BorderSide(
+                    color: loginFailed ? Colors.red : Colors.transparent,
+                    width: 2.0,
+                  ),
                 ),
               ),
             ),
             SizedBox(height: 35),
             ElevatedButton(
               onPressed: () {
+                setState(() {
+                  loginFailed = false; // Resetar estado de erro antes do novo login
+                });
                 login(); // Chamar a função de login
               },
               style: ElevatedButton.styleFrom(
