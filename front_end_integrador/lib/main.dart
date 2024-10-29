@@ -5,6 +5,7 @@ import 'home_page.dart';
 import 'emprestimo.dart';
 import 'beneficiados.dart';
 import 'itens.dart';
+import 'importar.dart';
 
 void main() {
   runApp(MyApp());
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         '/emprestimo': (context) => EmprestimoPage(),
         '/beneficiados': (context) => BeneficiadosPage(),
         '/itens': (context) => ItensPage(),
+        '/import':(context)=> ImportPage()
       },
     );
   }

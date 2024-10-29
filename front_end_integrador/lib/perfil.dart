@@ -26,8 +26,8 @@ class _PerfilPageState extends State<PerfilPage> {
       if (index == 0) {
         Navigator.pushReplacementNamed(context, '/home'); // Página inicial
       } else if (index == 1) {
-        Navigator.pushReplacementNamed(
-            context, '/home'); // Página de empréstimo
+      Navigator.pushReplacementNamed(
+          context, '/import');  
       } else if (index == 2) {
         Navigator.pushReplacementNamed(
             context, '/beneficiados'); // Página de beneficiados

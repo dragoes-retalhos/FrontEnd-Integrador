@@ -18,7 +18,8 @@ class _EmprestimoPageState extends State<EmprestimoPage> {
       Navigator.pushReplacementNamed(
           context, '/home'); // Navega para a página inicial
     } else if (index == 1) {
-      // Já estamos na página de empréstimo, então não faça nada
+      Navigator.pushReplacementNamed(
+          context, '/import'); 
     } else if (index == 2) {
       Navigator.pushReplacementNamed(
           context, '/beneficiados'); // Navega para a página de beneficiados
