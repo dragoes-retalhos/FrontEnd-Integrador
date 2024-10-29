@@ -3,8 +3,11 @@ import 'splashScreen.dart';
 import 'login.dart';
 import 'home_page.dart';
 import 'emprestimo.dart';
-import 'beneficiados.dart';
+import 'user_loan_card.dart';
 import 'itens.dart';
+import 'inventario.dart';
+import 'Components/viewPage.dart';
+import 'importPage.dart';
 
 void main() {
   runApp(MyApp());
@@ -26,6 +29,10 @@ class MyApp extends StatelessWidget {
         '/emprestimo': (context) => EmprestimoPage(),
         '/beneficiados': (context) => BeneficiadosPage(),
         '/itens': (context) => ItensPage(),
+        '/inventario': (context) => InventarioPage(),
+        '/main': (context) => MainPage(),
+        '/import': (context) => ImportPage(),
+
       },
     );
   }
