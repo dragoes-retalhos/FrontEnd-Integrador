@@ -8,6 +8,7 @@ class UserLoan {
   final String phone;
   final String statusUserEnum;
   final String typeUserLoanEnum;
+  final List<dynamic> loans;
 
   UserLoan({
     required this.id,
@@ -19,6 +20,7 @@ class UserLoan {
     required this.phone,
     required this.statusUserEnum,
     required this.typeUserLoanEnum,
+    required this.loans,
   });
 
   factory UserLoan.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,7 @@ class UserLoan {
       phone: json['phone'],
       statusUserEnum: json['statusUserEnum'],
       typeUserLoanEnum: json['typeUserLoanEnum'],
+      loans: json['loans'] ?? [], // Adicionado aqui
     );
   }
 }

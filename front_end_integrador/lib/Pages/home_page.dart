@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:front_integrador/Inventario.dart';
+import 'package:front_integrador/Pages/Inventario.dart';
 import 'emprestimo.dart';
 import 'perfil.dart';
-import 'Components/bottomNavBar.dart';
+import '../Components/bottomNavBar.dart';
 
 class HomePage extends StatelessWidget {
   @override

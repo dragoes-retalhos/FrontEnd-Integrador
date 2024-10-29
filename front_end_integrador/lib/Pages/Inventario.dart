@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'perfil.dart';
-import 'Components/bottomNavBar.dart';
-import 'Components/laboratoryItem.dart'; // Importe a classe Item aqui
+import '../Pages/perfil.dart';
+import '../Components/bottomNavBar.dart';
+import '../Components/laboratoryItem.dart'; // Importe a classe Item aqui
 
 class InventarioPage extends StatefulWidget {
   @override

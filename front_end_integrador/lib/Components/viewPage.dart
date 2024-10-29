@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'bottomNavBar.dart';
-import '../home_page.dart';
-import '../importPage.dart';
-import '../user_loan_card.dart';
+import '../Pages/home_page.dart';
+import '../Pages/importPage.dart';
+import '../Pages/user_loan_card.dart';
 import '../itens.dart';
 
 class MainPage extends StatefulWidget {

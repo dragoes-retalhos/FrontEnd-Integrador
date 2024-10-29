@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'splashScreen.dart';
-import 'login.dart';
-import 'home_page.dart';
-import 'emprestimo.dart';
-import 'user_loan_card.dart';
+import 'Pages/splashScreen.dart';
+import 'Pages/login.dart';
+import 'Pages/home_page.dart';
+import 'Pages/emprestimo.dart';
+import 'Pages/user_loan_card.dart';
 import 'itens.dart';
 import 'inventario.dart';
 import 'Components/viewPage.dart';
-import 'importPage.dart';
+import 'Pages/importPage.dart';
 
 void main() {
   runApp(MyApp());

@@ -1,21 +1,14 @@
 import 'package:flutter/material.dart';
 
-
 class PerfilPage extends StatefulWidget {
   const PerfilPage({super.key});
-
 
   @override
   State<PerfilPage> createState() => _PerfilPageState();
 }
 
-
-
-
-
 @override
 class _PerfilPageState extends State<PerfilPage> {
-
   int _selectedIndex = 2;
   void _onItemTapped(int index) {
     if (index != _selectedIndex) {
@@ -26,8 +19,7 @@ class _PerfilPageState extends State<PerfilPage> {
       if (index == 0) {
         Navigator.pushReplacementNamed(context, '/home'); // Página inicial
       } else if (index == 1) {
-      Navigator.pushReplacementNamed(
-          context, '/import');  
+        Navigator.pushReplacementNamed(context, '/import');
       } else if (index == 2) {
         Navigator.pushReplacementNamed(
             context, '/beneficiados'); // Página de beneficiados
@@ -36,13 +28,6 @@ class _PerfilPageState extends State<PerfilPage> {
       }
     }
   }
-
-
-
-
-
-
-
 
   String userName = 'João';
   String email = 'email@email.com';
@@ -161,38 +146,37 @@ class _PerfilPageState extends State<PerfilPage> {
         backgroundColor: Color.fromRGBO(245, 245, 245, 0),
         appBar: AppBar(
           backgroundColor: Color(0xFF0000FF),
-        iconTheme: IconThemeData(
-            color: Colors.white),
-            leading: IconButton(
-    icon: Icon(Icons.arrow_back),
-    onPressed: () {
-      Navigator.pop(context); // Volta para a tela anterior
-    },
-  ),
+          iconTheme: IconThemeData(color: Colors.white),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context); // Volta para a tela anterior
+            },
+          ),
           title: Padding(
-          padding: const EdgeInsets.only(top: 5.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Perfil',
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
-              SizedBox(height: 4),
-            ],
-          ),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.account_circle, color: Colors.white, size: 28),
-          ),
-        ],
+            padding: const EdgeInsets.only(top: 5.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Perfil',
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                SizedBox(height: 4),
+              ],
             ),
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 20.0, top: 10.0),
+              child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 20.0, top: 10.0),
+              child: Icon(Icons.account_circle, color: Colors.white, size: 28),
+            ),
+          ],
+        ),
         body: Stack(
           children: [
             Center(
@@ -391,44 +375,44 @@ class _PerfilPageState extends State<PerfilPage> {
           ],
         ),
         bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2), // Cor da sombra
-              spreadRadius: 5,
-              blurRadius: 7,
-              offset: Offset(0, 3),
-            ),
-          ],
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2), // Cor da sombra
+                spreadRadius: 5,
+                blurRadius: 7,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: ImageIcon(AssetImage('assets/images/icon_home.png')),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: ImageIcon(AssetImage('assets/images/icon_import.png')),
+                label: 'Importar',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.people),
+                label: 'Beneficiados',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.add),
+                label: 'Itens',
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            selectedItemColor: Color(0xFF1A00FF),
+            unselectedItemColor: Color.fromRGBO(64, 64, 64, 100),
+            backgroundColor: Colors.white,
+            onTap: _onItemTapped,
+          ),
         ),
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: ImageIcon(AssetImage('assets/images/icon_home.png')),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: ImageIcon(AssetImage('assets/images/icon_import.png')),
-              label: 'Importar',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.people),
-              label: 'Beneficiados',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.add),
-              label: 'Itens',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: Color(0xFF1A00FF),
-          unselectedItemColor: Color.fromRGBO(64, 64, 64, 100),
-          backgroundColor: Colors.white,
-          onTap: _onItemTapped,
-        ),
-      ),
       ),
     );
   }

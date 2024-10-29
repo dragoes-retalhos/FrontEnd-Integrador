@@ -4,9 +4,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'perfil.dart';
-import '../Components/bottomNavBar.dart';
-import '../models/user_loan.dart';
-import '../Components/userLoanCard.dart';
+import '../../Components/bottomNavBar.dart';
+import '../../models/user_loan.dart';
+import '../../Components/userLoanCard.dart';
 
 class BeneficiadosPage extends StatefulWidget {
   @override
