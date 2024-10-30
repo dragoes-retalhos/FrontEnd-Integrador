@@ -1,12 +1,11 @@
-// lib/pages/beneficiados_page.dart
-
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'perfil.dart';
 import '../../Components/bottomNavBar.dart';
 import '../../models/user_loan.dart';
 import '../../Components/userLoanCard.dart';
+import 'cadastro_beneficiarioPage.dart';
 
 class BeneficiadosPage extends StatefulWidget {
   @override
@@ -15,13 +14,31 @@ class BeneficiadosPage extends StatefulWidget {
 
 class _BeneficiadosPageState extends State<BeneficiadosPage> {
   List<UserLoan> _beneficiados = [];
+  List<UserLoan> _filteredBeneficiados = [];
+  TextEditingController _searchController = TextEditingController();
   bool _isLoading = true;
   String _errorMessage = '';
+  Color _iconColor = const Color.fromARGB(255, 0, 0, 0); // Cor padrão do ícone
+  Color _textColor = Colors.black; // Cor padrão do texto
+  FocusNode _focusNode = FocusNode(); // FocusNode para o campo de texto
 
   @override
   void initState() {
     super.initState();
     _fetchBeneficiados();
+
+    // Ouvir as mudanças de foco
+    _focusNode.addListener(() {
+      setState(() {
+        if (_focusNode.hasFocus) {
+          _iconColor = Colors.black; // Altera a cor do ícone para preto
+          _textColor = Colors.black; // Altera a cor do texto para preto
+        } else {
+          _iconColor = const Color.fromARGB(255, 0, 0, 0); // Restaura a cor do ícone
+          _textColor = Colors.black; // Restaura a cor do texto
+        }
+      });
+    });
   }
 
   Future<void> _fetchBeneficiados() async {
@@ -32,6 +49,7 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
         List<dynamic> data = json.decode(response.body);
         setState(() {
           _beneficiados = data.map((json) => UserLoan.fromJson(json)).toList();
+          _filteredBeneficiados = _beneficiados; // Inicialmente, todos os beneficiados são filtrados
           _isLoading = false;
         });
       } else {
@@ -43,6 +61,23 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
         _errorMessage = error.toString();
       });
     }
+  }
+
+  void _filterBeneficiados(String query) {
+    final filtered = _beneficiados.where((beneficiado) {
+      final nameBeneficiado = beneficiado.name?.toLowerCase() ?? ''; // Ajuste conforme necessário
+      return nameBeneficiado.contains(query.toLowerCase());
+    }).toList();
+
+    setState(() {
+      _filteredBeneficiados = filtered;
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose(); // Liberar o FocusNode
+    super.dispose();
   }
 
   @override
@@ -80,37 +115,32 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
             },
           ),
         ],
-        toolbarHeight: 80, // Altura ajustada para 80px
+        toolbarHeight: 80,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    spreadRadius: 1,
-                    blurRadius: 5,
-                  ),
-                ],
-              ),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search and filter',
-                  suffixIcon: Icon(Icons.filter_list),
-                  fillColor: Colors.white,
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            TextField(
+              controller: _searchController,
+              focusNode: _focusNode,
+              decoration: InputDecoration(
+                labelText: 'Filtrar pelo Nome',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(60.0),
                 ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(60.0),
+                  borderSide: BorderSide(
+                      color: Color.fromARGB(255, 86, 100, 245), width: 2),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(60.0),
+                ),
+                suffixIcon: Icon(Icons.search, color: _iconColor),
+                labelStyle: TextStyle(color: _textColor),
               ),
+              onChanged: _filterBeneficiados,
             ),
             SizedBox(height: 20),
             Expanded(
@@ -118,18 +148,24 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
                   ? Center(child: CircularProgressIndicator())
                   : _errorMessage.isNotEmpty
                       ? Center(child: Text(_errorMessage))
-                      : ListView.builder(
-                          itemCount: _beneficiados.length,
-                          itemBuilder: (context, index) {
-                            final beneficiado = _beneficiados[index];
-                            return UserLoanCard(userLoan: beneficiado); // Usar o componente
-                          },
-                        ),
+                      : _filteredBeneficiados.isNotEmpty
+                          ? ListView.builder(
+                              itemCount: _filteredBeneficiados.length,
+                              itemBuilder: (context, index) {
+                                final beneficiado = _filteredBeneficiados[index];
+                                return UserLoanCard(userLoan: beneficiado);
+                              },
+                            )
+                          : Center(child: Text('Nenhum beneficiado encontrado.')),
             ),
             SizedBox(height: 10),
             FloatingActionButton(
               onPressed: () {
-                // Lógica para adicionar um novo beneficiado
+                // Lógica para navegar para a página de cadastro
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CadastroBeneficiarioPage()),
+                );
               },
               backgroundColor: Color.fromARGB(100, 86, 100, 245),
               child: Icon(Icons.add),
@@ -138,7 +174,7 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
         ),
       ),
       bottomNavigationBar: BottomNavBar(
-        selectedIndex: 2, // Índice da página de beneficiados
+        selectedIndex: 2,
         onItemTapped: (index) {
           if (index == 0) {
             Navigator.pushReplacementNamed(context, '/home');

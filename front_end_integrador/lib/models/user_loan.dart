@@ -25,16 +25,16 @@ class UserLoan {
 
   factory UserLoan.fromJson(Map<String, dynamic> json) {
     return UserLoan(
-      id: json['id'],
-      name: json['name'],
-      email: json['email'],
-      rna: json['rna'],
-      enterprise: json['enterprise'],
-      identification: json['identification'],
-      phone: json['phone'],
-      statusUserEnum: json['statusUserEnum'],
-      typeUserLoanEnum: json['typeUserLoanEnum'],
-      loans: json['loans'] ?? [], // Adicionado aqui
+      id: json['id'], // Valor padrão para id
+      name: json['name'], // Valor padrão para nome
+      email: json['email'], // Valor padrão para email
+      rna: json['rna'] ?? 'RNA não informado', // Valor padrão para RNA
+      enterprise: json['enterprise'] ?? 'Empresa não informada', // Valor padrão para empresa
+      identification: json['identification'] ?? 'Identificação não informada', // Valor padrão para identificação
+      phone: json['phone'] ?? 'Telefone não informado', // Valor padrão para telefone
+      statusUserEnum: json['statusUserEnum'] ?? '0', // Valor padrão para status
+      typeUserLoanEnum: json['typeUserLoanEnum'] ?? '0', // Valor padrão para tipo
+      loans: json['loans'] ?? [], // Lista padrão vazia se loans for null
     );
   }
 }

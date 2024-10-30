@@ -3,9 +3,9 @@ import 'Pages/splashScreen.dart';
 import 'Pages/login.dart';
 import 'Pages/home_page.dart';
 import 'Pages/emprestimo.dart';
-import 'Pages/user_loan_card.dart';
-import 'itens.dart';
-import 'inventario.dart';
+import 'Pages/user_loanPage.dart';
+import 'Pages/itens.dart';
+import 'Pages/inventario.dart';
 import 'Components/viewPage.dart';
 import 'Pages/importPage.dart';
 

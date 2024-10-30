@@ -3,20 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../Pages/perfil.dart';
 import '../Components/bottomNavBar.dart';
-import '../Pages/InventarioItem.dart';
 
-class InventarioPage extends StatefulWidget {
+class InventarioItem extends StatefulWidget {
+  final String itemName;
+
+  InventarioItem({required this.itemName});
+
   @override
-  _InventarioPageState createState() => _InventarioPageState();
+  _InventarioItemState createState() => _InventarioItemState();
 }
 
-class _InventarioPageState extends State<InventarioPage> {
+class _InventarioItemState extends State<InventarioItem> {
   List<dynamic> items = [];
   List<dynamic> filteredItems = [];
-  TextEditingController searchController = TextEditingController();
+  TextEditingController filterController = TextEditingController();
   Color iconColor = const Color.fromARGB(255, 0, 0, 0); // Cor padrão do ícone
   Color textColor = Colors.black; // Cor padrão do texto
   FocusNode focusNode = FocusNode(); // FocusNode para o campo de texto
+  bool isLoading = true; // Variável para controlar o estado de carregamento
 
   @override
   void initState() {
@@ -27,10 +31,13 @@ class _InventarioPageState extends State<InventarioPage> {
     focusNode.addListener(() {
       setState(() {
         if (focusNode.hasFocus) {
+          // Quando o campo está em foco
           iconColor = Colors.black; // Altera a cor do ícone para preto
           textColor = Colors.black; // Altera a cor do texto para preto
         } else {
-          iconColor = const Color.fromARGB(255, 0, 0, 0); // Restaura a cor do ícone
+          // Quando o campo não está mais em foco
+          iconColor =
+              const Color.fromARGB(255, 0, 0, 0); // Restaura a cor do ícone
           textColor = Colors.black; // Restaura a cor do texto
         }
       });
@@ -39,27 +46,33 @@ class _InventarioPageState extends State<InventarioPage> {
 
   Future<void> fetchItems() async {
     try {
-      final response = await http
-          .get(Uri.parse('http://localhost:8080/api/item/dynamiclist'));
+      final response = await http.get(
+        Uri.parse('http://localhost:8080/api/item/by-name/${widget.itemName}'),
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         setState(() {
-          items = data;
-          filteredItems = data;
+          items = data; // Atribuição direta dos dados recebidos
+          filteredItems =
+              data; // Inicialmente, os itens filtrados são todos os itens
+          isLoading = false; // Atualiza o estado de carregamento
         });
       } else {
-        throw Exception('Falha ao carregar os itens');
+        throw Exception('Falha ao carregar os itens: ${response.body}');
       }
     } catch (e) {
       print('Erro: $e');
+      setState(() {
+        isLoading = false; // Atualiza o estado de carregamento em caso de erro
+      });
     }
   }
 
   void filterItems(String query) {
     final filtered = items.where((item) {
-      final nameItem = item['nameItem']?.toString() ?? '';
-      return nameItem.toLowerCase().contains(query.toLowerCase());
+      final serialNumber = item['serialNumber']?.toString() ?? '';
+      return serialNumber.toLowerCase().contains(query.toLowerCase());
     }).toList();
 
     setState(() {
@@ -82,7 +95,7 @@ class _InventarioPageState extends State<InventarioPage> {
         title: Padding(
           padding: const EdgeInsets.only(top: 5.0),
           child: Text(
-            'Página de Inventário',
+            widget.itemName,
             style: TextStyle(color: Colors.white, fontSize: 20),
           ),
         ),
@@ -109,10 +122,10 @@ class _InventarioPageState extends State<InventarioPage> {
         child: Column(
           children: [
             TextField(
-              controller: searchController,
-              focusNode: focusNode,
+              controller: filterController,
+              focusNode: focusNode, // Adiciona o FocusNode ao TextField
               decoration: InputDecoration(
-                labelText: 'Filtrar pelo Nome',
+                labelText: 'Filtrar pelo Número de Série',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(60.0),
                 ),
@@ -127,19 +140,24 @@ class _InventarioPageState extends State<InventarioPage> {
                 suffixIcon: Icon(Icons.search, color: iconColor),
                 labelStyle: TextStyle(color: textColor),
               ),
-              onChanged: filterItems,
+              onChanged:
+                  filterItems, // Filtra os itens conforme o texto é digitado
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 16), // Espaço entre o campo de filtro e a lista
             Expanded(
-              child: filteredItems.isNotEmpty
-                  ? ListView.builder(
-                      itemCount: filteredItems.length,
-                      itemBuilder: (context, index) {
-                        final item = filteredItems[index];
-                        return buildInventoryCard(item);
-                      },
-                    )
-                  : Center(child: Text('Nenhum item encontrado.')),
+              child: isLoading // Verifica o estado de carregamento
+                  ? Center(child: CircularProgressIndicator())
+                  : filteredItems.isNotEmpty // Verifica se há itens filtrados
+                      ? ListView.builder(
+                          itemCount: filteredItems.length,
+                          itemBuilder: (context, index) {
+                            final item = filteredItems[index];
+                            return buildItemCard(item);
+                          },
+                        )
+                      : Center(
+                          child: Text(
+                              'Nenhum item encontrado.')), // Mensagem quando não há itens
             ),
           ],
         ),
@@ -161,34 +179,40 @@ class _InventarioPageState extends State<InventarioPage> {
     );
   }
 
-  Widget buildInventoryCard(dynamic item) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => InventarioItem(itemName: item['nameItem']),
-          ),
-        );
-      },
-      child: Card(
-        margin: EdgeInsets.symmetric(vertical: 8.0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-        elevation: 2,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                item['nameItem'],
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+  Widget buildItemCard(dynamic item) {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 8.0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item['nameItem'],
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  if (item['serialNumber'] != null)
+                    Text('Número de Série: ${item['serialNumber']}'),
+                  if (item['amount'] != null)
+                    Text('Quantidade: ${item['amount']}'),
+                  if (item['description'] != null)
+                    Text('Descrição: ${item['description']}'),
+                ],
               ),
-              if (item['amount'] != null) Text('Quantidade: ${item['amount']}'),
-              if (item['description'] != null)
-                Text('Descrição: ${item['description']}'),
-            ],
-          ),
+            ),
+            IconButton(
+              icon: Icon(Icons.edit),
+              onPressed: () {
+                // Aqui você pode definir a lógica para navegar para a tela de edição
+              },
+            ),
+          ],
         ),
       ),
     );
