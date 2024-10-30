@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'bottomNavBar.dart';
-import '../home_page.dart';
-import '../importPage.dart';
-import '../user_loan_card.dart';
-import '../itens.dart';
+import '../Pages/home_page.dart';
+import '../Pages/importPage.dart';
+import '../Pages/itens.dart';
+import '../Pages/user_loanPage.dart';
 
 class MainPage extends StatefulWidget {
   @override

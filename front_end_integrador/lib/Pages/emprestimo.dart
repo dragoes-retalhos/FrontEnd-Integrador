@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'perfil.dart';
-import 'Components/bottomNavBar.dart';
+import '../Components/bottomNavBar.dart';
 
 class EmprestimoPage extends StatelessWidget {
   @override

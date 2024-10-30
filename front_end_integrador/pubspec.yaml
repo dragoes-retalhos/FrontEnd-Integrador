@@ -13,6 +13,7 @@ dependencies:
   video_player: ^2.5.4
   cupertino_icons: ^1.0.6
   http: ^0.13.3
+  art_sweetalert: ^0.0.5 
 
 dev_dependencies:
   flutter_test:
