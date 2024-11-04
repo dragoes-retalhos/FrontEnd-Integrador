@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class EmprestimoPage extends StatefulWidget {
+  const EmprestimoPage({super.key});
+
   @override
   _EmprestimoPageState createState() => _EmprestimoPageState();
 }
@@ -31,11 +33,11 @@ class _EmprestimoPageState extends State<EmprestimoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF0000FF),
-        iconTheme: IconThemeData(
+        backgroundColor: const Color(0xFF0000FF),
+        iconTheme: const IconThemeData(
             color: Colors.white), // Define a cor do ícone de voltar como branco
-        title: Padding(
-          padding: const EdgeInsets.only(top: 5.0),
+        title: const Padding(
+          padding: EdgeInsets.only(top: 5.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -47,13 +49,13 @@ class _EmprestimoPageState extends State<EmprestimoPage> {
             ],
           ),
         ),
-        actions: [
+        actions: const [
           Padding(
-            padding: const EdgeInsets.only(right: 20.0, top: 10.0),
+            padding: EdgeInsets.only(right: 20.0, top: 10.0),
             child: Icon(Icons.notifications, color: Colors.white, size: 28),
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 20.0, top: 10.0),
+            padding: EdgeInsets.only(right: 20.0, top: 10.0),
             child: Icon(Icons.account_circle, color: Colors.white, size: 28),
           ),
         ],
@@ -66,8 +68,8 @@ class _EmprestimoPageState extends State<EmprestimoPage> {
             mainAxisAlignment:
                 MainAxisAlignment.start, // Alinha o conteúdo no topo
             children: [
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'VAMOS REALIZAR UM EMPRESTIMO!',
                 style: TextStyle(
                   fontSize: 24,
@@ -75,26 +77,26 @@ class _EmprestimoPageState extends State<EmprestimoPage> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               _buildInputField('Quem será o responsável', Icons.filter_list),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               _buildInputField(
                   'Insira o número de Patrimonio', Icons.filter_list),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromARGB(
+                      backgroundColor: const Color.fromARGB(
                           100, 86, 100, 245), // Cor do botão "Confirmar"
                       padding:
-                          EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                     ),
                     onPressed: () {
                       // Ação de confirmação
                     },
-                    child: Text(
+                    child: const Text(
                       'Confirmar',
                       style: TextStyle(
                         fontSize: 16,
@@ -116,7 +118,7 @@ class _EmprestimoPageState extends State<EmprestimoPage> {
               color: Colors.black.withOpacity(0.2), // Cor da sombra
               spreadRadius: 5,
               blurRadius: 7,
-              offset: Offset(0, 3),
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -141,8 +143,8 @@ class _EmprestimoPageState extends State<EmprestimoPage> {
             ),
           ],
           currentIndex: _selectedIndex,
-          selectedItemColor: Color(0xFF1A00FF),
-          unselectedItemColor: Color.fromRGBO(64, 64, 64, 100),
+          selectedItemColor: const Color(0xFF1A00FF),
+          unselectedItemColor: const Color.fromRGBO(64, 64, 64, 100),
           backgroundColor: Colors.white,
           onTap: _onItemTapped,
         ),
@@ -161,7 +163,7 @@ class _EmprestimoPageState extends State<EmprestimoPage> {
           borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide.none,
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       ),
     );
   }

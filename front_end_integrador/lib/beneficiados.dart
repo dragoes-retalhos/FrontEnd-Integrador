@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class BeneficiadosPage extends StatefulWidget {
+  const BeneficiadosPage({super.key});
+
   @override
   _BeneficiadosPageState createState() => _BeneficiadosPageState();
 }
@@ -32,10 +34,10 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF0000FF),
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Padding(
-          padding: const EdgeInsets.only(top: 5.0),
+        backgroundColor: const Color(0xFF0000FF),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Padding(
+          padding: EdgeInsets.only(top: 5.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -47,13 +49,13 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
             ],
           ),
         ),
-        actions: [
+        actions: const [
           Padding(
-            padding: const EdgeInsets.only(right: 20.0, top: 10.0),
+            padding: EdgeInsets.only(right: 20.0, top: 10.0),
             child: Icon(Icons.notifications, color: Colors.white, size: 28),
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 20.0, top: 10.0),
+            padding: EdgeInsets.only(right: 20.0, top: 10.0),
             child: Icon(Icons.account_circle, color: Colors.white, size: 28),
           ),
         ],
@@ -63,9 +65,9 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black12,
@@ -77,7 +79,7 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
               child: TextField(
                 decoration: InputDecoration(
                   hintText: 'Search and filter',
-                  suffixIcon: Icon(Icons.filter_list),
+                  suffixIcon: const Icon(Icons.filter_list),
                   fillColor: Colors.white,
                   filled: true,
                   border: OutlineInputBorder(
@@ -85,11 +87,11 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
                     borderSide: BorderSide.none,
                   ),
                   contentPadding:
-                      EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: ListView.builder(
                 itemCount: 5, // Substitua pelo tamanho da lista de beneficiados
@@ -99,25 +101,25 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    margin: EdgeInsets.symmetric(vertical: 8),
+                    margin: const EdgeInsets.symmetric(vertical: 8),
                     child: ListTile(
-                      title: Text(
+                      title: const Text(
                         'Alberto',
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      subtitle: Text('Aluno'),
+                      subtitle: const Text('Aluno'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            icon: Icon(Icons.edit, color: Colors.grey),
+                            icon: const Icon(Icons.edit, color: Colors.grey),
                             onPressed: () {
                               // Lógica de edição
                             },
                           ),
                           IconButton(
-                            icon: Icon(Icons.delete, color: Colors.grey),
+                            icon: const Icon(Icons.delete, color: Colors.grey),
                             onPressed: () {
                               // Lógica de exclusão
                             },
@@ -129,13 +131,13 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
                 },
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             FloatingActionButton(
               onPressed: () {
                 // Lógica para adicionar um novo beneficiado
               },
-              backgroundColor: Color.fromARGB(100, 86, 100, 245),
-              child: Icon(Icons.add),
+              backgroundColor: const Color.fromARGB(100, 86, 100, 245),
+              child: const Icon(Icons.add),
             ),
           ],
         ),
@@ -148,7 +150,7 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
               color: Colors.black.withOpacity(0.2), // Cor da sombra
               spreadRadius: 5,
               blurRadius: 7,
-              offset: Offset(0, 3),
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -173,8 +175,8 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
             ),
           ],
           currentIndex: _selectedIndex,
-          selectedItemColor: Color(0xFF1A00FF),
-          unselectedItemColor: Color.fromRGBO(64, 64, 64, 100),
+          selectedItemColor: const Color(0xFF1A00FF),
+          unselectedItemColor: const Color.fromRGBO(64, 64, 64, 100),
           backgroundColor: Colors.white,
           onTap: _onItemTapped,
         ),
