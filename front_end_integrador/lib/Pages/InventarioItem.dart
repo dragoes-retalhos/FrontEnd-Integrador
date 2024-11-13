@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../Pages/perfil.dart';
 import '../Components/bottomNavBar.dart';
+import '../Pages/item_detalhe.dart';
 
 class InventarioItem extends StatefulWidget {
   final String itemName;
@@ -147,7 +148,7 @@ class _InventarioItemState extends State<InventarioItem> {
             Expanded(
               child: isLoading // Verifica o estado de carregamento
                   ? Center(child: CircularProgressIndicator())
-                  : filteredItems.isNotEmpty // Verifica se há itens filtrados
+                  : filteredItems.isNotEmpty 
                       ? ListView.builder(
                           itemCount: filteredItems.length,
                           itemBuilder: (context, index) {
@@ -180,7 +181,16 @@ class _InventarioItemState extends State<InventarioItem> {
   }
 
   Widget buildItemCard(dynamic item) {
-    return Card(
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ItemDetailPage(itemId: item['id']),
+        ),
+      );
+    },
+    child: Card(
       margin: EdgeInsets.symmetric(vertical: 8.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       elevation: 2,
@@ -209,12 +219,13 @@ class _InventarioItemState extends State<InventarioItem> {
             IconButton(
               icon: Icon(Icons.edit),
               onPressed: () {
-                // Aqui você pode definir a lógica para navegar para a tela de edição
+                // Lógica para a edição do item
               },
             ),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

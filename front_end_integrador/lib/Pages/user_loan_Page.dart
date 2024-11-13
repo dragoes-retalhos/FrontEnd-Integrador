@@ -5,7 +5,7 @@ import 'perfil.dart';
 import '../../Components/bottomNavBar.dart';
 import '../../models/user_loan.dart';
 import '../../Components/userLoanCard.dart';
-import 'cadastro_beneficiarioPage.dart';
+import 'cadastro_beneficiario.dart';
 
 class BeneficiadosPage extends StatefulWidget {
   @override
@@ -132,7 +132,7 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(60.0),
                   borderSide: BorderSide(
-                      color: Color.fromARGB(255, 86, 100, 245), width: 2),
+                      color: Color(0xFF5664F5), width: 2),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(60.0),
