@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'Pages/splashScreen.dart';
 import 'Pages/login.dart';
-import 'Pages/home_page.dart';
+import 'Pages/home.dart';
 import 'Pages/emprestimo.dart';
-import 'Pages/user_loanPage.dart';
+import 'Pages/user_loan_Page.dart';
 import 'Pages/itens.dart';
 import 'Pages/inventario.dart';
 import 'Components/viewPage.dart';

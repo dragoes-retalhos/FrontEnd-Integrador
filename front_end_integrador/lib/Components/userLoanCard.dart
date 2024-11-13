@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:http/http.dart' as http;
 import 'package:front_integrador/models/user_loan.dart';
+import 'package:front_integrador/Pages/user_loan_detalhes.dart';
 
 class UserLoanCard extends StatefulWidget {
   final UserLoan userLoan;
@@ -25,7 +26,11 @@ class _UserLoanCardState extends State<UserLoanCard> {
   late String selectedType;
 
   final statusMap = {'Ativo': 'ACTIVE', 'Inativo': 'DISABLED'};
-  final typeMap = {'Professor': 'TEACHER', 'Aluno': 'STUDENT', 'Empresarial': 'ENTERPRISE'};
+  final typeMap = {
+    'Professor': 'TEACHER',
+    'Aluno': 'STUDENT',
+    'Empresarial': 'ENTERPRISE'
+  };
 
   @override
   void initState() {
@@ -34,8 +39,10 @@ class _UserLoanCardState extends State<UserLoanCard> {
     nameController = TextEditingController(text: widget.userLoan.name);
     emailController = TextEditingController(text: widget.userLoan.email);
     rnaController = TextEditingController(text: widget.userLoan.rna);
-    enterpriseController = TextEditingController(text: widget.userLoan.enterprise);
-    identificationController = TextEditingController(text: widget.userLoan.identification);
+    enterpriseController =
+        TextEditingController(text: widget.userLoan.enterprise);
+    identificationController =
+        TextEditingController(text: widget.userLoan.identification);
     phoneController = TextEditingController(text: widget.userLoan.phone);
 
     // Inicialize selectedStatus e selectedType com um valor padrão
@@ -63,8 +70,11 @@ class _UserLoanCardState extends State<UserLoanCard> {
                 _buildTextField(controller: nameController, label: 'Nome'),
                 _buildTextField(controller: emailController, label: 'Email'),
                 _buildTextField(controller: rnaController, label: 'RNA'),
-                _buildTextField(controller: enterpriseController, label: 'Empresa'),
-                _buildTextField(controller: identificationController, label: 'Identificação'),
+                _buildTextField(
+                    controller: enterpriseController, label: 'Empresa'),
+                _buildTextField(
+                    controller: identificationController,
+                    label: 'Identificação'),
                 _buildTextField(controller: phoneController, label: 'Telefone'),
                 _buildDropdown(
                   value: selectedStatus,
@@ -113,7 +123,8 @@ class _UserLoanCardState extends State<UserLoanCard> {
     );
   }
 
-  Widget _buildTextField({required TextEditingController controller, required String label}) {
+  Widget _buildTextField(
+      {required TextEditingController controller, required String label}) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(labelText: label),
@@ -137,29 +148,42 @@ class _UserLoanCardState extends State<UserLoanCard> {
     );
   }
 
-  Future<void> _saveUserLoan(BuildContext context, Map<String, dynamic> requestBody) async {
-    final response = await http.put(
-      Uri.parse('http://localhost:8080/api/userLoan'),
-      headers: {'Content-Type': 'application/json; charset=UTF-8'},
-      body: jsonEncode(requestBody),
-    );
+  Future<void> _saveUserLoan(
+      BuildContext context, Map<String, dynamic> requestBody) async {
+    // Remove 'loans' from the request body to prevent it from being updated
+    requestBody.remove('loans');
 
-    if (response.statusCode == 201 && mounted) {
-      await ArtSweetAlert.show(
-        context: context,
-        artDialogArgs: ArtDialogArgs(
-          title: "Sucesso!",
-          text: "Beneficiado atualizado com sucesso!",
-          type: ArtSweetAlertType.success,
-        ),
+    try {
+      final body = jsonEncode(requestBody);
+      print('Sending JSON Body: $body');
+
+      final response = await http.put(
+        Uri.parse('http://localhost:8080/api/userLoan'),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: body,
       );
 
-      Navigator.of(context).pop();
-      Navigator.pushReplacementNamed(context, '/beneficiados');
-    } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao atualizar o beneficiado: ${response.body}')),
-      );
+      if (response.statusCode == 201 && mounted) {
+        await ArtSweetAlert.show(
+          context: context,
+          artDialogArgs: ArtDialogArgs(
+            title: "Sucesso!",
+            text: "Beneficiado atualizado com sucesso!",
+            type: ArtSweetAlertType.success,
+          ),
+        );
+
+        Navigator.of(context).pop();
+        Navigator.pushReplacementNamed(context, '/beneficiados');
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text('Erro ao atualizar o beneficiado: ${response.body}')),
+        );
+      }
+    } catch (e) {
+      print('Error encoding JSON: $e');
     }
   }
 
@@ -181,7 +205,8 @@ class _UserLoanCardState extends State<UserLoanCard> {
       Navigator.pushReplacementNamed(context, '/beneficiados');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao excluir o beneficiado: ${response.body}')),
+        SnackBar(
+            content: Text('Erro ao excluir o beneficiado: ${response.body}')),
       );
     }
   }
@@ -229,35 +254,46 @@ class _UserLoanCardState extends State<UserLoanCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: ListTile(
-        title: Text(
-          widget.userLoan.name,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(widget.userLoan.email),
-            Text('Status: ${_getStatusText(widget.userLoan.statusUserEnum)}'),
-            Text('Tipo: ${_getTypeText(widget.userLoan.typeUserLoanEnum)}'),
-          ],
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.edit, color: Colors.grey),
-              onPressed: () => _showEditDialog(context),
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.grey),
-              onPressed: () => _confirmDelete(context),
-            ),
-          ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                DetalhesBeneficiarioPage(userLoan: widget.userLoan),
+          ),
+        );
+      },
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        child: ListTile(
+          title: Text(
+            widget.userLoan.name,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(widget.userLoan.email),
+              Text('Status: ${_getStatusText(widget.userLoan.statusUserEnum)}'),
+              Text('Tipo: ${_getTypeText(widget.userLoan.typeUserLoanEnum)}'),
+            ],
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit, color: Colors.grey),
+                onPressed: () => _showEditDialog(context),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete, color: Colors.grey),
+                onPressed: () => _confirmDelete(context),
+              ),
+            ],
+          ),
         ),
       ),
     );
