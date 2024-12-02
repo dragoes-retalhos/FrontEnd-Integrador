@@ -14,10 +14,10 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  bool loginFailed = false; // Variável para monitorar o erro de login
+  bool loginFailed = false; 
 
   Future<void> login() async {
-    const String apiUrl = 'http://localhost:10.0.2.2/api/login/authentication';
+    const String apiUrl = 'http://10.0.2.2:8080/api/login/authentication';
 
     User user = User(
       email: emailController.text,
@@ -37,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
           MaterialPageRoute(builder: (context) => HomePage()),
         );
       } else {
-        //erro de login
+        
         setState(() {
           loginFailed = true;
         });
@@ -45,10 +45,10 @@ class _LoginScreenState extends State<LoginScreen> {
           SnackBar(content: Text('Falha no login: ${response.body}')),
         );
       }
-    } catch (e) {
+    } catch (e) { 
       print('Erro ao fazer a requisição: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao fazer a requisição: $e')),
+        SnackBar(content: Text('Contate o suporte. Tente novamente mais tarde')),
       );
     }
   }
@@ -73,15 +73,19 @@ class _LoginScreenState extends State<LoginScreen> {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
-                hintText: loginFailed ? 'Login inválido' : 'Email',
-                hintStyle:
-                    TextStyle(color: loginFailed ? Colors.red : Colors.grey),
+                hintText: 'Email',
+                hintStyle: const TextStyle(color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5.0),
                   borderSide: BorderSide(
-                    color: loginFailed
-                        ? Colors.red
-                        : Colors.transparent, //caso de erro
+                    color: loginFailed ? Colors.red : Colors.transparent,
+                    width: 2.0,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                  borderSide: BorderSide(
+                    color: loginFailed ? Colors.red : Colors.transparent,
                     width: 2.0,
                   ),
                 ),
@@ -94,10 +98,16 @@ class _LoginScreenState extends State<LoginScreen> {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
-                hintText: loginFailed ? 'Login inválido' : 'Senha',
-                hintStyle:
-                    TextStyle(color: loginFailed ? Colors.red : Colors.grey),
+                hintText: 'Senha',
+                hintStyle: const TextStyle(color: Colors.grey),
                 border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                  borderSide: BorderSide(
+                    color: loginFailed ? Colors.red : Colors.transparent,
+                    width: 2.0,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5.0),
                   borderSide: BorderSide(
                     color: loginFailed ? Colors.red : Colors.transparent,
@@ -131,18 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             const SizedBox(height: 45),
-            TextButton(
-              onPressed: () {
-                // Navegar para a tela de recuperação de senha
-              },
-              child: const Text(
-                'Esqueceu a senha?',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
-              ),
-            ),
+            
           ],
         ),
       ),
