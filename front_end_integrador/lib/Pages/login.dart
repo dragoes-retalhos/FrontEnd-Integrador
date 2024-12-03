@@ -17,7 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool loginFailed = false; 
 
   Future<void> login() async {
-    const String apiUrl = 'http://10.0.2.2:8080/api/login/authentication';
+    const String apiUrl = 'http://172.22.176.1:8080/api/login/authentication';
 
     User user = User(
       email: emailController.text,

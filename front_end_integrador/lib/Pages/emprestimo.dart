@@ -7,11 +7,11 @@ class EmprestimoPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0000FF),
-        iconTheme: const IconThemeData(
+        backgroundColor: Color(0xFF0000FF),
+        iconTheme: IconThemeData(
             color: Colors.white), // Define a cor do ícone de voltar como branco
-        title: const Padding(
-          padding: EdgeInsets.only(top: 5.0),
+        title: Padding(
+          padding: const EdgeInsets.only(top: 5.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -23,9 +23,9 @@ class EmprestimoPage extends StatelessWidget {
             ],
           ),
         ),
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 20.0, top: 10.0),
+            padding: const EdgeInsets.only(right: 20.0, top: 10.0),
             child: Icon(Icons.notifications, color: Colors.white, size: 28),
           ),
           IconButton(
@@ -48,8 +48,8 @@ class EmprestimoPage extends StatelessWidget {
             mainAxisAlignment:
                 MainAxisAlignment.start, // Alinha o conteúdo no topo
             children: [
-              const SizedBox(height: 20),
-              const Text(
+              SizedBox(height: 20),
+              Text(
                 'VAMOS REALIZAR UM EMPRESTIMO!',
                 style: TextStyle(
                   fontSize: 24,
@@ -57,26 +57,26 @@ class EmprestimoPage extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
               _buildInputField('Quem será o responsável', Icons.filter_list),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _buildInputField(
                   'Insira o número de Patrimonio', Icons.filter_list),
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(
+                      backgroundColor: Color.fromARGB(
                           100, 86, 100, 245), // Cor do botão "Confirmar"
                       padding:
-                          const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                     ),
                     onPressed: () {
                       // Ação de confirmação
                     },
-                    child: const Text(
+                    child: Text(
                       'Confirmar',
                       style: TextStyle(
                         fontSize: 16,
@@ -118,7 +118,7 @@ class EmprestimoPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide.none,
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       ),
     );
   }
