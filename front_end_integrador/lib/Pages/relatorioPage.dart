@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import '../Components/bottomNavBar.dart';
 
 class RelatorioPage extends StatelessWidget {
   @override
@@ -24,7 +26,8 @@ class RelatorioPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Categoria
-            const Text('Categoria', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Categoria',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
@@ -72,7 +75,8 @@ class RelatorioPage extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Tipo de data
-            const Text('Tipo de data', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Tipo de data',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
@@ -85,7 +89,8 @@ class RelatorioPage extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Período
-            const Text('Selecione o período', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Selecione o período',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -111,7 +116,8 @@ class RelatorioPage extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Número de Patrimônio
-            const Text('Número de Patrimônio', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Número de Patrimônio',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             TextFormField(
               decoration: InputDecoration(
@@ -126,7 +132,8 @@ class RelatorioPage extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 16.0, horizontal: 32.0),
                   backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0),
@@ -141,28 +148,17 @@ class RelatorioPage extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.import_export),
-            label: 'Importar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Beneficiados',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory),
-            label: 'Itens',
-          ),
-        ],
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: 0, // Índice da página de empréstimo
+        onItemTapped: (index) {
+          if (index == 0) {
+            Navigator.pushReplacementNamed(context, '/home');
+          } else if (index == 1) {
+            Navigator.pushReplacementNamed(context, '/beneficiados');
+          } else if (index == 2) {
+            Navigator.pushReplacementNamed(context, '/itens');
+          }
+        },
       ),
     );
   }

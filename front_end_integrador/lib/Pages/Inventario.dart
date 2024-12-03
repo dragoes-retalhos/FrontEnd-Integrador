@@ -145,15 +145,13 @@ class _InventarioPageState extends State<InventarioPage> {
         ),
       ),
       bottomNavigationBar: BottomNavBar(
-        selectedIndex: -1,
+        selectedIndex: 0, // Índice da página de empréstimo
         onItemTapped: (index) {
           if (index == 0) {
             Navigator.pushReplacementNamed(context, '/home');
           } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/emprestimo');
-          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/beneficiados');
-          } else if (index == 3) {
+          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/itens');
           }
         },

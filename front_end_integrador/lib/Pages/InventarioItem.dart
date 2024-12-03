@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import '../Pages/perfil.dart';
 import '../Components/bottomNavBar.dart';
 import '../Pages/item_detalhe.dart';
+import '../Pages/edit_item_page.dart'; // Importe a página de edição
+import '../Pages/manutencao_item_page.dart'; // Importe a página de manutenção
 
 class InventarioItem extends StatefulWidget {
   final String itemName;
@@ -164,15 +166,13 @@ class _InventarioItemState extends State<InventarioItem> {
         ),
       ),
       bottomNavigationBar: BottomNavBar(
-        selectedIndex: -1,
+        selectedIndex: 0, // Índice da página de empréstimo
         onItemTapped: (index) {
           if (index == 0) {
             Navigator.pushReplacementNamed(context, '/home');
           } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/emprestimo');
-          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/beneficiados');
-          } else if (index == 3) {
+          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/itens');
           }
         },
@@ -181,51 +181,71 @@ class _InventarioItemState extends State<InventarioItem> {
   }
 
   Widget buildItemCard(dynamic item) {
-  return GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ItemDetailPage(itemId: item['id']),
-        ),
-      );
-    },
-    child: Card(
-      margin: EdgeInsets.symmetric(vertical: 8.0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ItemDetailPage(itemId: item['id']),
+          ),
+        );
+      },
+      child: Card(
+        margin: EdgeInsets.symmetric(vertical: 8.0),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item['nameItem'],
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    if (item['serialNumber'] != null)
+                      Text('Número de Série: ${item['serialNumber']}'),
+                    if (item['amount'] != null)
+                      Text('Quantidade: ${item['amount']}'),
+                    if (item['description'] != null)
+                      Text('Descrição: ${item['description']}'),
+                  ],
+                ),
+              ),
+              Row(
                 children: [
-                  Text(
-                    item['nameItem'],
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  IconButton(
+                    icon: Icon(Icons.edit),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditItemPage(itemId: item['id']),
+                        ),
+                      );
+                    },
                   ),
-                  if (item['serialNumber'] != null)
-                    Text('Número de Série: ${item['serialNumber']}'),
-                  if (item['amount'] != null)
-                    Text('Quantidade: ${item['amount']}'),
-                  if (item['description'] != null)
-                    Text('Descrição: ${item['description']}'),
+                  IconButton(
+                    icon: Icon(Icons.build),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ManutencaoPage(itemId: item['id']),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
-            ),
-            IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: () {
-                // Lógica para a edição do item
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

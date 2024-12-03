@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_typeahead/flutter_typeahead.dart'; // Importar o flutter_typeahead
 import 'perfil.dart';
-import 'package:art_sweetalert/art_sweetalert.dart'; 
+import 'package:art_sweetalert/art_sweetalert.dart';
 import '../Components/bottomNavBar.dart';
 import 'home.dart';
 
@@ -209,6 +209,11 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
                             onSuggestionSelected: (suggestion) {
                               brandController.text = suggestion;
                             },
+                            noItemsFoundBuilder: (context) {
+                              return ListTile(
+                                title: Text('Nova Marca'),
+                              );
+                            },
                           ),
                         ),
                         SizedBox(width: 15),
@@ -246,6 +251,11 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
                             onSuggestionSelected: (suggestion) {
                               modelController.text = suggestion;
                             },
+                            noItemsFoundBuilder: (context) {
+                              return ListTile(
+                                title: Text('Novo Modelo'),
+                              );
+                            },
                           ),
                         ),
                       ],
@@ -280,16 +290,23 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
                             EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                       ),
                     ),
-                    SizedBox(height: 15),
+                    SizedBox(height: 30), // Espaço maior antes do botão
 
                     // Botão de cadastro
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          cadastrarItem();
-                        }
-                      },
-                      child: Text('Cadastrar'),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            cadastrarItem();
+                          }
+                        },
+                        child: Text('Cadastrar'),
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 15.0, horizontal: 30.0),
+                          textStyle: TextStyle(fontSize: 16),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -299,15 +316,13 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
         ),
       ),
       bottomNavigationBar: BottomNavBar(
-        selectedIndex: 3,
+        selectedIndex: 0, // Índice da página de empréstimo
         onItemTapped: (index) {
           if (index == 0) {
             Navigator.pushReplacementNamed(context, '/home');
           } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/import');
-          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/beneficiados');
-          } else if (index == 3) {
+          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/itens');
           }
         },

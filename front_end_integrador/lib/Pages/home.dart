@@ -1,11 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:front_integrador/Pages/Inventario.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'emprestimo.dart';
 import 'perfil.dart';
 import '../Components/bottomNavBar.dart';
 import 'relatorioPage.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<dynamic> activeLoans = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchLoans();
+  }
+
+  Future<void> fetchLoans() async {
+    final url = Uri.parse('http://localhost:8080/api/loan/dinamic');
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+
+        // Filtrar empréstimos com status "ATIVO"
+        setState(() {
+          activeLoans =
+              data.where((loan) => loan['status'] == "ATIVO").toList();
+        });
+      } else {
+        print("Erro ao buscar empréstimos: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Erro ao realizar a requisição: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,10 +126,16 @@ class HomePage extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
-            _buildItemCard('Notebook', 'Emprestado',
-                'Rua Armando Luis Arrosi 1370', 'Notebook Pichau Gamer'),
-            _buildItemCard('Notebook', 'Emprestado',
-                'Rua Armando Luis Arrosi 1370', 'Notebook Pichau Gamer'),
+            Expanded(
+              child: ListView(
+                children: activeLoans.map((loan) {
+                  return _buildItemCard(
+                    loan['loanedItems'] ?? 'Item desconhecido',
+                    loan['loanDate'] ?? 'Data não informada',
+                    loan['expectedReturnDate'] ?? 'Data não informada');                      
+                }).toList(),
+              ),
+            ),
           ],
         ),
       ),
@@ -103,10 +145,8 @@ class HomePage extends StatelessWidget {
           if (index == 0) {
             Navigator.pushReplacementNamed(context, '/home');
           } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/import');
-          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/beneficiados');
-          } else if (index == 3) {
+          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/itens');
           }
         },
@@ -130,7 +170,7 @@ class HomePage extends StatelessWidget {
             MaterialPageRoute(builder: (context) => InventarioPage()),
           );
         }
-        if  (label == 'Relatórios') {
+        if (label == 'Relatórios') {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => RelatorioPage()),
@@ -179,7 +219,12 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildItemCard(
-      String title, String status, String location, String description) {
+      String item, List<dynamic> loanDate, List<dynamic> expectedReturnDate) {
+    String formatDate(List<dynamic> date) {
+      if (date.isEmpty) return "Data não disponível";
+      return "${date[2]}/${date[1]}/${date[0]} ${date.length > 3 ? '${date[3]}:${date[4]}' : ''}";
+    }
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -191,12 +236,11 @@ class HomePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title,
+            Text(item,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 5),
-            Text('Status: $status'),
-            Text('Localização: $location'),
-            Text('Descrição: $description'),
+            Text('Data de Empréstimo: ${formatDate(loanDate)}'),
+            Text('Data de Previsão: ${formatDate(expectedReturnDate)}'),
           ],
         ),
       ),

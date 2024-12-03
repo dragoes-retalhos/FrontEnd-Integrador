@@ -140,7 +140,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
               : SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       _buildReadOnlyInput(
                           'Nome', getStringValue(itemDetails!['nameItem'])),
@@ -184,15 +184,13 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                   ),
                 ),
       bottomNavigationBar: BottomNavBar(
-        selectedIndex: 2,
+        selectedIndex: 0, // Índice da página de empréstimo
         onItemTapped: (index) {
           if (index == 0) {
             Navigator.pushReplacementNamed(context, '/home');
           } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/import');
-          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/beneficiados');
-          } else if (index == 3) {
+          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/itens');
           }
         },
@@ -201,30 +199,32 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   }
 
   Widget _buildReadOnlyInput(String label, String value) {
-    return Container(
-      height: 35,
-      child: TextFormField(
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF5664F5)),
-            borderRadius: BorderRadius.circular(30.0),
+    return Center(
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.8, // Adapta o tamanho
+        child: TextFormField(
+          decoration: InputDecoration(
+            labelText: label,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: Color.fromARGB(100, 86, 100, 245)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: Color.fromARGB(100, 86, 100, 245)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: Color.fromARGB(100, 86, 100, 245)),
+            ),
+            filled: true,
+            fillColor: Colors.transparent,
+            contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF5664F5)),
-            borderRadius: BorderRadius.circular(30.0),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF5664F5)),
-            borderRadius: BorderRadius.circular(30.0),
-          ),
-          filled: true,
-          fillColor: Colors.transparent,
-          contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 14.0),
+          initialValue: value,
+          readOnly: true,
+          textAlign: TextAlign.start,
         ),
-        initialValue: value,
-        readOnly: true,
-        textAlign: TextAlign.center,
       ),
     );
   }

@@ -38,19 +38,19 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
       "name": _nameController.text,
       "email": _emailController.text,
       "phone": _phoneController.text,
-      "statusUserEnum": "ACTIVE",
-      "typeUserLoanEnum": _selectedType == "Aluno"
+      "statusUserEnum": "ATIVO",
+      "typeUserLoanEnum": _selectedType == "ALUNO"
           ? "STUDENT"
-          : _selectedType == "Professor"
+          : _selectedType == "PROFESSOR"
               ? "TEACHER"
-              : _selectedType == "Empresarial"
+              : _selectedType == "EMPRESA"
                   ? "ENTERPRISE"
                   : null,
       if (_selectedType == 'Aluno') "rna": _additionalField1Controller.text,
       if (_selectedType == 'Professor') "identification": _additionalField2Controller.text,
       if (_selectedType == 'Empresarial') "enterprise": _additionalField1Controller.text,
     };
-
+    print(userLoan);
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -262,6 +262,18 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: 1, // Índice da página de empréstimo
+        onItemTapped: (index) {
+          if (index == 0) {
+            Navigator.pushReplacementNamed(context, '/home');
+          } else if (index == 1) {
+            Navigator.pushReplacementNamed(context, '/beneficiados');
+          } else if (index == 2) {
+            Navigator.pushReplacementNamed(context, '/itens');
+          }
+        },
       ),
     );
   }
