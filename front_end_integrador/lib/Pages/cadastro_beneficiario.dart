@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:front_integrador/Components/bottomNavBar.dart'; // Ajuste o caminho de importação conforme necessário
-import 'package:front_integrador/Pages/perfil.dart'; // Ajuste o caminho de importação conforme necessário
-import 'package:art_sweetalert/art_sweetalert.dart'; // Certifique-se de adicionar essa dependência no seu projeto
+import 'package:front_integrador/Components/bottomNavBar.dart';
+import 'package:front_integrador/Pages/perfil.dart';
+import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class CadastroBeneficiarioPage extends StatefulWidget {
   @override
-  _CadastroBeneficiarioPageState createState() =>
-      _CadastroBeneficiarioPageState();
+  _CadastroBeneficiarioPageState createState() => _CadastroBeneficiarioPageState();
 }
 
 class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
@@ -18,14 +17,23 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _additionalField1Controller =
-      TextEditingController();
-  final TextEditingController _additionalField2Controller =
-      TextEditingController();
+  final TextEditingController _additionalField1Controller = TextEditingController();
+  final TextEditingController _additionalField2Controller = TextEditingController();
 
   Future<void> _confirm() async {
-    String url = 'http://localhost:8080/api/userLoan';
+    if (_nameController.text.isEmpty || _emailController.text.isEmpty || _phoneController.text.isEmpty || _selectedType == null) {
+      await ArtSweetAlert.show(
+        context: context,
+        artDialogArgs: ArtDialogArgs(
+          title: "Erro",
+          text: "Todos os campos obrigatórios devem ser preenchidos.",
+          type: ArtSweetAlertType.danger,
+        ),
+      );
+      return;
+    }
 
+    String url = 'http://localhost:8080/api/userLoan';
     Map<String, dynamic> userLoan = {
       "name": _nameController.text,
       "email": _emailController.text,
@@ -39,19 +47,9 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
                   ? "ENTERPRISE"
                   : null,
       if (_selectedType == 'Aluno') "rna": _additionalField1Controller.text,
-      if (_selectedType == 'Professor')
-        "identification": _additionalField2Controller.text,
-      if (_selectedType == 'Empresarial')
-        "enterprise": _additionalField1Controller.text,
+      if (_selectedType == 'Professor') "identification": _additionalField2Controller.text,
+      if (_selectedType == 'Empresarial') "enterprise": _additionalField1Controller.text,
     };
-
-    if (_selectedType == null ||
-        _nameController.text.isEmpty ||
-        _emailController.text.isEmpty ||
-        _phoneController.text.isEmpty) {
-      print("Erro: Campos obrigatórios não preenchidos.");
-      return;
-    }
 
     try {
       final response = await http.post(
@@ -102,18 +100,15 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
       appBar: AppBar(
         backgroundColor: Color(0xFF0000FF),
         iconTheme: IconThemeData(color: Colors.white),
-        title: Padding(
-          padding: const EdgeInsets.only(top: 5.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Página de Beneficiados',
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
-              SizedBox(height: 4),
-            ],
-          ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Cadastro de Beneficiário',
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            SizedBox(height: 4),
+          ],
         ),
         actions: [
           Padding(
@@ -131,14 +126,13 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
             },
           ),
         ],
-        toolbarHeight: 80, // Altura ajustada para 80px
+        toolbarHeight: 80,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Campos de entrada existentes
             TextField(
               controller: _nameController,
               decoration: InputDecoration(
@@ -149,8 +143,7 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
               ),
             ),
             SizedBox(height: 10),
@@ -164,8 +157,7 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
               ),
             ),
             SizedBox(height: 10),
@@ -179,8 +171,7 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
               ),
             ),
             SizedBox(height: 10),
@@ -203,18 +194,15 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
               }).toList(),
               onChanged: (String? newValue) {
                 setState(() {
-                  _selectedType = newValue; // Atualiza o tipo selecionado
-                  _showNewInputs =
-                      true; // Mostra novos campos quando um tipo é selecionado
-                  _additionalField1Controller.clear(); // Limpa o controlador
-                  _additionalField2Controller.clear(); // Limpa o controlador
+                  _selectedType = newValue;
+                  _showNewInputs = true;
+                  _additionalField1Controller.clear();
+                  _additionalField2Controller.clear();
                 });
               },
-              value: _selectedType, // Define o valor selecionado
+              value: _selectedType,
             ),
             SizedBox(height: 20),
-
-            // Campos de entrada adicionais que aparecem quando um tipo é selecionado
             if (_showNewInputs) ...[
               if (_selectedType == 'Professor') ...[
                 TextField(
@@ -227,8 +215,7 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                   ),
                 ),
                 SizedBox(height: 10),
@@ -243,8 +230,7 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                   ),
                 ),
                 SizedBox(height: 10),
@@ -259,8 +245,7 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                   ),
                 ),
                 SizedBox(height: 10),
@@ -268,29 +253,16 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
             ],
             ElevatedButton(
               onPressed: _confirm,
-              child: Text('Cadastrar'),
+              child: Text('Cadastrar Beneficiário'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF0000FF), // Cor do botão
-                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                backgroundColor: Colors.blue,
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                textStyle: TextStyle(fontSize: 16),
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: -1,
-        onItemTapped: (index) {
-          if (index == 0) {
-            Navigator.pushReplacementNamed(context, '/home');
-          } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/emprestimo');
-          } else if (index == 2) {
-            Navigator.pushReplacementNamed(context, '/beneficiados');
-          } else if (index == 3) {
-            Navigator.pushReplacementNamed(context, '/itens');
-          }
-        },
-      ), // Exibe a barra de navegação inferior
     );
   }
 }

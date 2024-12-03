@@ -18,11 +18,12 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   art_sweetalert: ^0.0.5
-
+  dropdown_search: ^5.0.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  flutter_typeahead: ^4.0.0
 
 flutter:
   uses-material-design: true

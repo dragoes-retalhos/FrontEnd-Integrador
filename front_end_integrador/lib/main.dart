@@ -8,6 +8,8 @@ import 'Pages/itens.dart';
 import 'Pages/inventario.dart';
 import 'Components/viewPage.dart';
 import 'Pages/importPage.dart';
+import 'Pages/relatorioPage.dart';
+import 'Pages/cadastro_item_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -30,10 +32,11 @@ class MyApp extends StatelessWidget {
         '/home': (context) => HomePage(),
         '/emprestimo': (context) => EmprestimoPage(),
         '/beneficiados': (context) => BeneficiadosPage(),
-        '/itens': (context) => ItensPage(),
+        '/itens': (context) => CadastroItemPage(),
         '/inventario': (context) => InventarioPage(),
         '/main': (context) => MainPage(),
-        '/import': (context) => ImportPage(),
+        '/relatorio': (context) => RelatorioPage(),
+        
 
       },
     );

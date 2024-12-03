@@ -4,6 +4,7 @@ import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:http/http.dart' as http;
 import 'package:front_integrador/models/user_loan.dart';
 import 'package:front_integrador/Pages/user_loan_detalhes.dart';
+import 'package:front_integrador/Pages/edit_beneficiario_page.dart';
 
 class UserLoanCard extends StatefulWidget {
   final UserLoan userLoan;
@@ -57,71 +58,6 @@ class _UserLoanCardState extends State<UserLoanCard> {
     );
   }
 
-  Future<void> _showEditDialog(BuildContext context) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Editar Beneficiado'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                _buildTextField(controller: nameController, label: 'Nome'),
-                _buildTextField(controller: emailController, label: 'Email'),
-                _buildTextField(controller: rnaController, label: 'RNA'),
-                _buildTextField(
-                    controller: enterpriseController, label: 'Empresa'),
-                _buildTextField(
-                    controller: identificationController,
-                    label: 'Identificação'),
-                _buildTextField(controller: phoneController, label: 'Telefone'),
-                _buildDropdown(
-                  value: selectedStatus,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedStatus = newValue!;
-                    });
-                  },
-                  items: statusMap.keys,
-                ),
-                _buildDropdown(
-                  value: selectedType,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedType = newValue!;
-                    });
-                  },
-                  items: typeMap.keys,
-                ),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancelar'),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            TextButton(
-              child: const Text('Salvar'),
-              onPressed: () => _saveUserLoan(context, {
-                'id': widget.userLoan.id,
-                'name': nameController.text,
-                'email': emailController.text,
-                'rna': rnaController.text,
-                'enterprise': enterpriseController.text,
-                'identification': identificationController.text,
-                'phone': phoneController.text,
-                'statusUserEnum': statusMap[selectedStatus]!,
-                'typeUserLoanEnum': typeMap[selectedType]!,
-                'loans': widget.userLoan.loans,
-              }),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   Widget _buildTextField(
       {required TextEditingController controller, required String label}) {
@@ -286,7 +222,14 @@ class _UserLoanCardState extends State<UserLoanCard> {
             children: [
               IconButton(
                 icon: const Icon(Icons.edit, color: Colors.grey),
-                onPressed: () => _showEditDialog(context),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditBeneficiarioPage(userLoan: widget.userLoan),
+                    ),
+                  );
+                },
               ),
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.grey),

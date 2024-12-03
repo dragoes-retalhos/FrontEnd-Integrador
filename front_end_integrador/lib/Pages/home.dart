@@ -3,6 +3,7 @@ import 'package:front_integrador/Pages/Inventario.dart';
 import 'emprestimo.dart';
 import 'perfil.dart';
 import '../Components/bottomNavBar.dart';
+import 'relatorioPage.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -127,6 +128,12 @@ class HomePage extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => InventarioPage()),
+          );
+        }
+        if  (label == 'Relatórios') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => RelatorioPage()),
           );
         }
       },
