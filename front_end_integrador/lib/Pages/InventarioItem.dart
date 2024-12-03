@@ -6,6 +6,7 @@ import '../Components/bottomNavBar.dart';
 import '../Pages/item_detalhe.dart';
 import '../Pages/edit_item_page.dart'; // Importe a página de edição
 import '../Pages/manutencao_item_page.dart'; // Importe a página de manutenção
+import '../Pages/retornar_manutencao_page.dart'; // Importe a página de retornar manutenção
 
 class InventarioItem extends StatefulWidget {
   final String itemName;
@@ -51,10 +52,11 @@ class _InventarioItemState extends State<InventarioItem> {
     try {
       final response = await http.get(
         Uri.parse('http://localhost:8080/api/item/by-name/${widget.itemName}'),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
           items = data; // Atribuição direta dos dados recebidos
           filteredItems =
@@ -150,7 +152,7 @@ class _InventarioItemState extends State<InventarioItem> {
             Expanded(
               child: isLoading // Verifica o estado de carregamento
                   ? Center(child: CircularProgressIndicator())
-                  : filteredItems.isNotEmpty 
+                  : filteredItems.isNotEmpty
                       ? ListView.builder(
                           itemCount: filteredItems.length,
                           itemBuilder: (context, index) {
@@ -192,7 +194,8 @@ class _InventarioItemState extends State<InventarioItem> {
       },
       child: Card(
         margin: EdgeInsets.symmetric(vertical: 8.0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
         elevation: 2,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -205,14 +208,13 @@ class _InventarioItemState extends State<InventarioItem> {
                   children: [
                     Text(
                       item['nameItem'],
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     if (item['serialNumber'] != null)
                       Text('Número de Série: ${item['serialNumber']}'),
-                    if (item['amount'] != null)
-                      Text('Quantidade: ${item['amount']}'),
-                    if (item['description'] != null)
-                      Text('Descrição: ${item['description']}'),
+                    if (item['status'] != null)
+                      Text('status: ${item['status']}'),
                   ],
                 ),
               ),
@@ -224,7 +226,8 @@ class _InventarioItemState extends State<InventarioItem> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EditItemPage(itemId: item['id']),
+                          builder: (context) =>
+                              EditItemPage(itemId: item['id']),
                         ),
                       );
                     },
@@ -232,12 +235,35 @@ class _InventarioItemState extends State<InventarioItem> {
                   IconButton(
                     icon: Icon(Icons.build),
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ManutencaoPage(itemId: item['id']),
-                        ),
-                      );
+                      if (item['status'] == 'INATIVO') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(
+                                  'Item está inativo e não pode ser enviado para manutenção.')),
+                        );
+                      } else if (item['status'] == 'INDISPONÍVEL') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(
+                                  'Item está emprestado e não pode ser enviado para manutenção.')),
+                        );
+                      } else if (item['status'] == 'MANUTENÇÃO') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                RetornarManutencaoPage(itemId: item['id']),
+                          ),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ManutencaoPage(itemId: item['id']),
+                          ),
+                        );
+                      }
                     },
                   ),
                 ],

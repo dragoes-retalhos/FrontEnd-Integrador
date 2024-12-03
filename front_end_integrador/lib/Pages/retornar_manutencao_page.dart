@@ -6,32 +6,30 @@ import 'perfil.dart';
 import '../Components/bottomNavBar.dart';
 import 'package:art_sweetalert/art_sweetalert.dart';
 
-class ManutencaoPage extends StatefulWidget {
+class RetornarManutencaoPage extends StatefulWidget {
   final int itemId;
 
-  const ManutencaoPage({Key? key, required this.itemId}) : super(key: key);
+  const RetornarManutencaoPage({Key? key, required this.itemId}) : super(key: key);
 
   @override
-  _ManutencaoPageState createState() => _ManutencaoPageState();
+  _RetornarManutencaoPageState createState() => _RetornarManutencaoPageState();
 }
 
-class _ManutencaoPageState extends State<ManutencaoPage> {
+class _RetornarManutencaoPageState extends State<RetornarManutencaoPage> {
   late TextEditingController descriptionController;
   late TextEditingController maintenanceDateController;
   late TextEditingController nextMaintenanceDateController;
   late TextEditingController costController;
-  late String selectedMaintenanceType;
 
   bool isLoading = true;
   bool hasError = false;
-
-  final maintenanceTypeOptions = ['CORRETIVA', 'PREVENTIVA'];
 
   late Map<String, dynamic> itemDetails;
 
   @override
   void initState() {
     super.initState();
+    fetchMaintenanceDetails();
     fetchItemDetails();
   }
 
@@ -45,20 +43,52 @@ class _ManutencaoPageState extends State<ManutencaoPage> {
         final data = json.decode(response.body);
         setState(() {
           itemDetails = data;
-          descriptionController = TextEditingController();
-          maintenanceDateController = TextEditingController();
-          nextMaintenanceDateController = TextEditingController();
-          costController = TextEditingController();
-          selectedMaintenanceType = maintenanceTypeOptions.first;
-          isLoading = false;
         });
       } else {
+        setState(() {
+          hasError = true;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        hasError = true;
+      });
+    }
+  }
+
+  Future<void> fetchMaintenanceDetails() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://localhost:8080/api/maintenance/${widget.itemId}'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        if (data.isNotEmpty) {
+          // Ordenar as manutenções pelo ID em ordem decrescente e pegar a primeira
+          final maintenance = data.reduce((a, b) => a['idMaintenance'] > b['idMaintenance'] ? a : b);
+          setState(() {
+            descriptionController = TextEditingController(text: maintenance['description']);
+            maintenanceDateController = TextEditingController(text: _formatDate(maintenance['creationDate']));
+            nextMaintenanceDateController = TextEditingController(text: _formatDate(maintenance['deliveryDate']));
+            costController = TextEditingController(text: maintenance['cost'].toString());
+            isLoading = false;
+          });
+        } else {
+          setState(() {
+            hasError = true;
+            isLoading = false;
+          });
+        }
+      } else {
+        print('Erro ao carregar detalhes da manutenção: ${response.body}');
         setState(() {
           hasError = true;
           isLoading = false;
         });
       }
     } catch (e) {
+      print('Erro inesperado: $e');
       setState(() {
         hasError = true;
         isLoading = false;
@@ -66,32 +96,45 @@ class _ManutencaoPageState extends State<ManutencaoPage> {
     }
   }
 
-  Future<void> _sendToMaintenance() async {
-    final maintenanceRequestBody = {
-      'maintenanceType': selectedMaintenanceType,
+  String _formatDate(List<dynamic> dateList) {
+    final date = DateTime(
+      dateList[0],
+      dateList[1],
+      dateList[2],
+      dateList.length > 3 ? dateList[3] : 0,
+      dateList.length > 4 ? dateList[4] : 0,
+      dateList.length > 5 ? dateList[5] : 0,
+    );
+    return DateFormat('dd/MM/yyyy').format(date);
+  }
+
+  Future<void> _updateMaintenance() async {
+    final now = DateTime.now();
+    final requestBody = {
+      'maintenanceType': 'CORRETIVA', // ou 'PREVENTIVA', conforme necessário
       'description': descriptionController.text,
-      'statusMaintenance': 'EM ANDAMENTO',
+      'statusMaintenance': 'CONCLUÍDA',
       'cost': double.tryParse(costController.text) ?? 0.0,
-      'creationDate': DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateFormat('dd/MM/yyyy').parse(maintenanceDateController.text)),
-      'deliveryDate': DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateFormat('dd/MM/yyyy').parse(nextMaintenanceDateController.text)),
+      'creationDate': DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(maintenanceDateController.text)),
+      'deliveryDate': now.toIso8601String(),
       'laboratoryItem': {
         'id': widget.itemId,
-        'status': 'MANUTENÇÃO',
+        'status': 'ATIVO',
       },
     };
 
     // Log do corpo da requisição
-    print('Corpo da requisição: ${jsonEncode(maintenanceRequestBody)}');
+    print('Corpo da requisição: ${jsonEncode(requestBody)}');
 
     try {
-      final maintenanceResponse = await http.post(
-        Uri.parse('http://localhost:8080/api/maintenance'),
+      final response = await http.put(
+        Uri.parse('http://localhost:8080/api/maintenance/up-date/${widget.itemId}'),
         headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        body: jsonEncode(maintenanceRequestBody),
+        body: jsonEncode(requestBody),
       );
 
-      if (maintenanceResponse.statusCode == 201) {
-        // Atualizar o status do item para "MANUTENÇÃO"
+      if (response.statusCode == 200) {
+        // Atualizar o status do item para "ATIVO"
         final itemRequestBody = {
           'id': itemDetails['id'],
           'nameItem': itemDetails['nameItem'],
@@ -101,7 +144,7 @@ class _ManutencaoPageState extends State<ManutencaoPage> {
           'invoiceNumber': itemDetails['invoiceNumber'],
           'entryDate': _convertDateToList(itemDetails['entryDate']),
           'nextCalibration': _convertDateToList(itemDetails['nextCalibration']),
-          'status': 'MANUTENÇÃO',
+          'status': 'ATIVO',
         };
 
         final itemResponse = await http.put(
@@ -114,8 +157,8 @@ class _ManutencaoPageState extends State<ManutencaoPage> {
           await ArtSweetAlert.show(
             context: context,
             artDialogArgs: ArtDialogArgs(
-              title: "Item enviado para manutenção com sucesso!",
-              text: "O item foi enviado para manutenção com sucesso.",
+              title: "Manutenção concluída com sucesso!",
+              text: "O status da manutenção foi atualizado para CONCLUÍDA e o status do item foi alterado para ATIVO.",
               type: ArtSweetAlertType.success,
             ),
           );
@@ -133,12 +176,12 @@ class _ManutencaoPageState extends State<ManutencaoPage> {
           );
         }
       } else {
-        print('Erro ao enviar o item para manutenção: ${maintenanceResponse.body}');
+        print('Erro ao atualizar a manutenção: ${response.body}');
         await ArtSweetAlert.show(
           context: context,
           artDialogArgs: ArtDialogArgs(
             title: "Erro",
-            text: "Falha ao enviar o item para manutenção.",
+            text: "Falha ao atualizar a manutenção.",
             type: ArtSweetAlertType.danger,
           ),
         );
@@ -196,7 +239,7 @@ class _ManutencaoPageState extends State<ManutencaoPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Enviar Item para Manutenção',
+              'Retornar Manutenção',
               style: TextStyle(color: Colors.white, fontSize: 20),
             ),
             SizedBox(height: 4),
@@ -223,79 +266,39 @@ class _ManutencaoPageState extends State<ManutencaoPage> {
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : hasError
-              ? Center(child: Text('Erro ao carregar detalhes do item.'))
+              ? Center(child: Text('Erro ao carregar detalhes da manutenção.'))
               : Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      DropdownButtonFormField<String>(
-                        value: selectedMaintenanceType,
-                        decoration: _buildInputDecoration('Tipo de Manutenção'),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedMaintenanceType = value!;
-                          });
-                        },
-                        items: maintenanceTypeOptions.map((String type) {
-                          return DropdownMenuItem<String>(
-                            value: type,
-                            child: Text(type),
-                          );
-                        }).toList(),
-                      ),
-                      SizedBox(height: 15),
                       TextField(
                         controller: descriptionController,
                         decoration: _buildInputDecoration('Descrição'),
+                        readOnly: true,
                       ),
                       SizedBox(height: 15),
                       TextField(
                         controller: costController,
                         decoration: _buildInputDecoration('Custo'),
                         keyboardType: TextInputType.number,
+                        readOnly: true,
                       ),
                       SizedBox(height: 15),
                       TextField(
                         controller: maintenanceDateController,
                         decoration: _buildInputDecoration('Data da Manutenção'),
-                        onTap: () async {
-                          DateTime? pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2101),
-                          );
-                          if (pickedDate != null) {
-                            setState(() {
-                              maintenanceDateController.text =
-                                  DateFormat('dd/MM/yyyy').format(pickedDate);
-                            });
-                          }
-                        },
+                        readOnly: true,
                       ),
                       SizedBox(height: 15),
                       TextField(
                         controller: nextMaintenanceDateController,
                         decoration: _buildInputDecoration('Previsão de Retorno'),
-                        onTap: () async {
-                          DateTime? pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2101),
-                          );
-                          if (pickedDate != null) {
-                            setState(() {
-                              nextMaintenanceDateController.text =
-                                  DateFormat('dd/MM/yyyy').format(pickedDate);
-                            });
-                          }
-                        },
+                        readOnly: true,
                       ),
                       SizedBox(height: 20),
                       ElevatedButton(
-                        onPressed: _sendToMaintenance,
-                        child: Text('Enviar para Manutenção'),
+                        onPressed: _updateMaintenance,
+                        child: Text('Concluir Manutenção'),
                       ),
                     ],
                   ),

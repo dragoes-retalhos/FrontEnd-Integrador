@@ -41,11 +41,14 @@ class _EmprestimoPageState extends State<EmprestimoPage> {
 
   Future<void> _fetchAllItems() async {
     final response =
-        await http.get(Uri.parse('http://localhost:8080/api/item/dynamiclist'));
+        await http.get(Uri.parse('http://localhost:8080/api/item/all-itens'));
     if (response.statusCode == 200) {
       final List<dynamic> itemsJson = jsonDecode(response.body);
       setState(() {
-        _items = List<Map<String, dynamic>>.from(itemsJson);
+        // Filtrar itens com status "ATIVO"
+        _items = List<Map<String, dynamic>>.from(itemsJson)
+            .where((item) => item['status'] == 'ATIVO')
+            .toList();
       });
     } else {
       print('Failed to load items');
@@ -94,27 +97,42 @@ class _EmprestimoPageState extends State<EmprestimoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Color(0xFF0000FF),
-        title: Text(
-          'Empréstimo',
-          style: TextStyle(color: Colors.white),
+        title: Padding(
+          padding: const EdgeInsets.only(left: 30.0, top: 5.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Emprestimo',
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              SizedBox(height: 4),
+              Text(
+                'Olá, Name',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ],
+          ),
         ),
-        toolbarHeight: 80,
         actions: [
-          IconButton(
-            icon: Icon(Icons.notifications),
-            onPressed: () {},
+          Padding(
+            padding: const EdgeInsets.only(right: 20.0, top: 10.0),
+            child: Icon(Icons.notifications, color: Colors.white, size: 28),
           ),
           IconButton(
-            icon: Icon(Icons.account_circle),
+            padding: const EdgeInsets.only(right: 20.0, top: 10.0),
+            icon: Icon(Icons.account_circle, color: Colors.white, size: 28),
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => PerfilPage()),
               );
             },
-          ),
+          )
         ],
+        toolbarHeight: 80, // Altura ajustada para 80px
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -146,13 +164,12 @@ class _EmprestimoPageState extends State<EmprestimoPage> {
         ),
       ),
       bottomNavigationBar: BottomNavBar(
-        selectedIndex: 2,
+        selectedIndex: 0,
         onItemTapped: (index) {
           if (index == 0) Navigator.pushReplacementNamed(context, '/home');
-          if (index == 1) Navigator.pushReplacementNamed(context, '/import');
-          if (index == 2)
+          if (index == 1)
             Navigator.pushReplacementNamed(context, '/beneficiados');
-          if (index == 3) Navigator.pushReplacementNamed(context, '/itens');
+          if (index == 2) Navigator.pushReplacementNamed(context, '/itens');
         },
       ),
     );

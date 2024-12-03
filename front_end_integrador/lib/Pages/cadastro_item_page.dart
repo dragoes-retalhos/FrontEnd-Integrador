@@ -316,7 +316,7 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
         ),
       ),
       bottomNavigationBar: BottomNavBar(
-        selectedIndex: 0, // Índice da página de empréstimo
+        selectedIndex: 2, // Índice da página de empréstimo
         onItemTapped: (index) {
           if (index == 0) {
             Navigator.pushReplacementNamed(context, '/home');

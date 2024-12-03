@@ -17,14 +17,17 @@ class ItemDetailPage extends StatefulWidget {
 class _ItemDetailPageState extends State<ItemDetailPage> {
   Map<String, dynamic>? itemDetails;
   List<dynamic> loanHistory = [];
+  List<dynamic> maintenanceHistory = [];
   bool isLoading = true;
   bool hasError = false;
+  bool showLoanHistory = true;
 
   @override
   void initState() {
     super.initState();
     fetchItemDetails();
     fetchLoanHistory();
+    fetchMaintenanceHistory();
   }
 
   // Função para buscar detalhes do item
@@ -59,6 +62,27 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
       if (response.statusCode == 200) {
         setState(() {
           loanHistory = json.decode(response.body);
+        });
+      } else {
+        setState(() {
+          hasError = true;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        hasError = true;
+      });
+    }
+  }
+
+  // Função para buscar o histórico de manutenções do item
+  Future<void> fetchMaintenanceHistory() async {
+    try {
+      final response = await http.get(Uri.parse(
+          'http://localhost:8080/api/maintenance/${widget.itemId}'));
+      if (response.statusCode == 200) {
+        setState(() {
+          maintenanceHistory = json.decode(response.body);
         });
       } else {
         setState(() {
@@ -171,15 +195,62 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                             : 'Data de manutenção não disponível',
                       ),
                       SizedBox(height: 16),
-                      Text(
-                        'Histórico de Empréstimos:',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                showLoanHistory = false;
+                              });
+                            },
+                            child: Text('Manutenção'),
+                          ),
+                          SizedBox(width: 16),
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                showLoanHistory = true;
+                              });
+                            },
+                            child: Text('Empréstimo'),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 8),
-                      ...loanHistory
-                          .map((loan) => _buildLoanHistoryCard(loan))
-                          .toList(),
+                      SizedBox(height: 16),
+                      showLoanHistory
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Histórico de Empréstimos:',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18),
+                                ),
+                                SizedBox(height: 8),
+                                ...loanHistory
+                                    .map((loan) => _buildLoanHistoryCard(loan))
+                                    .toList(),
+                              ],
+                            )
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Histórico de Manutenções:',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18),
+                                ),
+                                SizedBox(height: 8),
+                                ...maintenanceHistory
+                                    .map((maintenance) =>
+                                        _buildMaintenanceHistoryCard(
+                                            maintenance))
+                                    .toList(),
+                              ],
+                            ),
                     ],
                   ),
                 ),
@@ -243,6 +314,27 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
             Text(
                 'Data de Retorno: ${loan['returnDate'] != null ? getFormattedDate(loan['returnDate']) : "Não devolvido"}'),
             Text('Status: ${loan['status']}'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMaintenanceHistoryCard(dynamic maintenance) {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        title: Text('Tipo: ${maintenance['maintenanceType']}'),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Descrição: ${maintenance['description']}'),
+            Text(
+                'Data de Criação: ${getFormattedDate(maintenance['creationDate'])}'),
+            Text(
+                'Data de Entrega: ${getFormattedDate(maintenance['deliveryDate'])}'),
+            Text('Custo: ${maintenance['cost']}'),
+            Text('Status: ${maintenance['statusMaintenance']}'),
           ],
         ),
       ),

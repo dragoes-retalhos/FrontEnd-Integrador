@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'bottomNavBar.dart';
 import '../Pages/home.dart';
-import '../Pages/importPage.dart';
 import '../Pages/itens.dart';
 import '../Pages/user_loan_Page.dart';
 
@@ -33,7 +32,6 @@ class _MainPageState extends State<MainPage> {
         },
         children: [
           HomePage(),
-          ImportPage(),
           BeneficiadosPage(),
           ItensPage(),
         ],

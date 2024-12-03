@@ -98,7 +98,7 @@ class _DetalhesBeneficiarioPageState extends State<DetalhesBeneficiarioPage> {
         ),
       ),
       bottomNavigationBar: BottomNavBar(
-        selectedIndex: 0, // Índice da página de empréstimo
+        selectedIndex: 1, // Índice da página de empréstimo
         onItemTapped: (index) {
           if (index == 0) {
             Navigator.pushReplacementNamed(context, '/home');

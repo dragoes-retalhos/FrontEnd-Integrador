@@ -58,7 +58,6 @@ class _UserLoanCardState extends State<UserLoanCard> {
     );
   }
 
-
   Widget _buildTextField(
       {required TextEditingController controller, required String label}) {
     return TextField(

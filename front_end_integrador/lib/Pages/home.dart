@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'emprestimo.dart';
 import 'perfil.dart';
 import '../Components/bottomNavBar.dart';
-import 'relatorioPage.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -90,14 +89,13 @@ class _HomePageState extends State<HomePage> {
           children: [
             SizedBox(height: 20),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildImageButton(
                     context, 'assets/images/icon_emprestimo.png', 'Empréstimo'),
+                SizedBox(width: 16), // Espaçamento entre os cards
                 _buildImageButton(
                     context, 'assets/images/icon_inventario.png', 'Inventário'),
-                _buildImageButton(
-                    context, 'assets/images/icon_relatorio.png', 'Relatórios'),
               ],
             ),
             SizedBox(height: 20),
@@ -168,12 +166,6 @@ class _HomePageState extends State<HomePage> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => InventarioPage()),
-          );
-        }
-        if (label == 'Relatórios') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => RelatorioPage()),
           );
         }
       },

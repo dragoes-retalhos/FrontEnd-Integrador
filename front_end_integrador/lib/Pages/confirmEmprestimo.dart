@@ -179,120 +179,143 @@ class ConfirmacaoPage extends StatelessWidget {
         ],
         toolbarHeight: 80,
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: Future.wait(
-          selectedItems.map((item) => fetchItemDetails(item['serialNumber'])),
-        ),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
+      body: Stack(
+        children: [
+          FutureBuilder<List<Map<String, dynamic>>>(
+            future: Future.wait(
+              selectedItems.map((item) => fetchItemDetails(item['serialNumber'])),
+            ),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              }
 
-          if (snapshot.hasError) {
-            return Center(child: Text('Erro ao carregar os itens'));
-          }
+              if (snapshot.hasError) {
+                return Center(child: Text('Erro ao carregar os itens'));
+              }
 
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('Nenhum item encontrado'));
-          }
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Center(child: Text('Nenhum item encontrado'));
+              }
 
-          final itemDetailsList = snapshot.data!;
+              final itemDetailsList = snapshot.data!;
 
-          return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 600), // Define a largura máxima
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'CONFIRME AS INFORMAÇÕES DO EMPRÉSTIMO!',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      // Card do responsável
-                      Card(
-                        elevation: 4,
-                        margin: EdgeInsets.symmetric(vertical: 10),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Responsável',
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(height: 10),
-                              Text('Nome: ${selectedUser['name']}'),
-                              Text(
-                                  'Nº de identificação: ${selectedUser['identification']}'),
-                              Text('Email: ${selectedUser['email']}'),
-                              Text('Telefone: ${selectedUser['phone']}'),
-                            ],
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'CONFIRME AS INFORMAÇÕES DO EMPRÉSTIMO!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
                         ),
-                      ),
-                      // Card dos itens
-                      Card(
-                        elevation: 4,
-                        margin: EdgeInsets.symmetric(vertical: 10),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ...itemDetailsList.asMap().entries.map((entry) {
-                                final index = entry.key;
-                                final item = entry.value;
-
-                                return Column(
+                        SizedBox(height: 20),
+                        // Card do responsável
+                        Center(
+                          child: FractionallySizedBox(
+                            widthFactor: 0.9, // Define a largura como 90% da tela
+                            child: Card(
+                              elevation: 4,
+                              margin: EdgeInsets.symmetric(vertical: 10),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      '${item['nameItem']}',
+                                      'Responsável',
                                       style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold),
+                                          fontSize: 18, fontWeight: FontWeight.bold),
                                     ),
+                                    SizedBox(height: 10),
+                                    Text('Nome: ${selectedUser['name']}'),
                                     Text(
-                                        'Número de série: ${item['serialNumber']}'),
-                                    Text('Marca: ${item['brand']}'),
-                                    Text('Modelo: ${item['model']}'),
-                                    Text(
-                                        'N° Nota fiscal: ${item['invoiceNumber']}'),
-                                    if (index != itemDetailsList.length - 1)
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: Divider(
-                                          color: Colors.grey[400],
-                                          thickness: 1,
-                                        ),
-                                      ),
+                                        'Nº de identificação: ${selectedUser['identification']}'),
+                                    Text('Email: ${selectedUser['email']}'),
+                                    Text('Telefone: ${selectedUser['phone']}'),
                                   ],
-                                );
-                              }).toList(),
-                            ],
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(height: 80), // Espaço para o botão fixo
-                    ],
+                        // Card dos itens
+                        Center(
+                          child: FractionallySizedBox(
+                            widthFactor: 0.9, // Define a largura como 90% da tela
+                            child: Card(
+                              elevation: 4,
+                              margin: EdgeInsets.symmetric(vertical: 10),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ...itemDetailsList.asMap().entries.map((entry) {
+                                      final index = entry.key;
+                                      final item = entry.value;
+
+                                      return Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${item['nameItem']}',
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Text(
+                                              'Número de série: ${item['serialNumber']}'),
+                                          Text('Marca: ${item['brand']}'),
+                                          Text('Modelo: ${item['model']}'),
+                                          Text(
+                                              'N° Nota fiscal: ${item['invoiceNumber']}'),
+                                          if (index != itemDetailsList.length - 1)
+                                            Padding(
+                                              padding: const EdgeInsets.symmetric(
+                                                  vertical: 8.0),
+                                              child: Divider(
+                                                color: Colors.grey[400],
+                                                thickness: 1,
+                                              ),
+                                            ),
+                                        ],
+                                      );
+                                    }).toList(),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 80), // Espaço para o botão fixo
+                      ],
+                    ),
                   ),
                 ),
+              );
+            },
+          ),
+          Positioned(
+            bottom: 16,
+            left: 16,
+            right: 16,
+            child: ElevatedButton(
+              onPressed: () => confirmarEmprestimo(context),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 15),
               ),
+              child: Text('Concluir Empréstimo'),
             ),
-          );
-        },
+          ),
+        ],
       ),
       bottomNavigationBar: BottomNavBar(
         selectedIndex: 0,
@@ -300,10 +323,8 @@ class ConfirmacaoPage extends StatelessWidget {
           if (index == 0) {
             Navigator.pushReplacementNamed(context, '/home');
           } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/import');
-          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/beneficiados');
-          } else if (index == 3) {
+          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/itens');
           }
         },
