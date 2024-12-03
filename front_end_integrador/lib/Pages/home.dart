@@ -10,9 +10,9 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Color(0xFF0000FF),
-        title: Padding(
-          padding: const EdgeInsets.only(left: 30.0, top: 5.0),
+        backgroundColor: const Color(0xFF0000FF),
+        title: const Padding(
+          padding: EdgeInsets.only(left: 30.0, top: 5.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -28,9 +28,9 @@ class HomePage extends StatelessWidget {
             ],
           ),
         ),
-        actions: [
+        actions: const [
           Padding(
-            padding: const EdgeInsets.only(right: 20.0, top: 10.0),
+            padding: EdgeInsets.only(right: 20.0, top: 10.0),
             child: Icon(Icons.notifications, color: Colors.white, size: 28),
           ),
           IconButton(
@@ -51,7 +51,7 @@ class HomePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -63,9 +63,9 @@ class HomePage extends StatelessWidget {
                     context, 'assets/images/icon_relatorio.png', 'Relatórios'),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black12,
@@ -84,11 +84,11 @@ class HomePage extends StatelessWidget {
                     borderSide: BorderSide.none,
                   ),
                   contentPadding:
-                      EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _buildItemCard('Notebook', 'Emprestado',
                 'Rua Armando Luis Arrosi 1370', 'Notebook Pichau Gamer'),
             _buildItemCard('Notebook', 'Emprestado',
@@ -137,7 +137,7 @@ class HomePage extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
                   color: Colors.black12,
                   spreadRadius: 1,
@@ -145,7 +145,7 @@ class HomePage extends StatelessWidget {
                 ),
               ],
             ),
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -154,10 +154,10 @@ class HomePage extends StatelessWidget {
                   width: 60,
                   height: 60,
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   label,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color.fromRGBO(53, 53, 53, 100),
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -178,15 +178,15 @@ class HomePage extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-      margin: EdgeInsets.symmetric(vertical: 10),
+      margin: const EdgeInsets.symmetric(vertical: 10),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 5),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 5),
             Text('Status: $status'),
             Text('Localização: $location'),
             Text('Descrição: $description'),
