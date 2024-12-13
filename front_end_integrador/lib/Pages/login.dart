@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:front_integrador/models/User.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'home.dart';
+import '../service/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,30 +15,39 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  bool loginFailed = false; 
+  bool loginFailed = false;
 
   Future<void> login() async {
-    const String apiUrl = 'http://localhost:8080/api/login/authentication';
+    const String apiUrl = 'http://localhost:8080/api/auth/login';
 
-    User user = User(
-      email: emailController.text,
-      password: passwordController.text,
-    );
+    final credentials = {
+      'email': emailController.text,
+      'senha': passwordController.text,
+    };
 
     try {
+      final token = await AuthService.getToken();
       final response = await http.post(
         Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(user.toJson()),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(credentials),
       );
 
       if (response.statusCode == 200) {
+        final String token = response.body;
+
+       
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('authToken', token);
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => HomePage()),
         );
       } else {
-        
         setState(() {
           loginFailed = true;
         });
@@ -45,10 +55,10 @@ class _LoginScreenState extends State<LoginScreen> {
           SnackBar(content: Text('Falha no login: ${response.body}')),
         );
       }
-    } catch (e) { 
+    } catch (e) {
       print('Erro ao fazer a requisição: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Contate o suporte. Tente novamente mais tarde')),
+        const SnackBar(content: Text('Erro no servidor. Tente novamente mais tarde.')),
       );
     }
   }
@@ -77,17 +87,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 hintStyle: const TextStyle(color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5.0),
-                  borderSide: BorderSide(
-                    color: loginFailed ? Colors.red : Colors.transparent,
-                    width: 2.0,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5.0),
-                  borderSide: BorderSide(
-                    color: loginFailed ? Colors.red : Colors.transparent,
-                    width: 2.0,
-                  ),
                 ),
               ),
             ),
@@ -102,17 +101,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 hintStyle: const TextStyle(color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5.0),
-                  borderSide: BorderSide(
-                    color: loginFailed ? Colors.red : Colors.transparent,
-                    width: 2.0,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5.0),
-                  borderSide: BorderSide(
-                    color: loginFailed ? Colors.red : Colors.transparent,
-                    width: 2.0,
-                  ),
                 ),
               ),
             ),
@@ -120,8 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  loginFailed =
-                      false; // Resetar estado de erro antes do novo login
+                  loginFailed = false; // Resetar estado de erro antes do novo login
                 });
                 login(); // Chamar a função de login
               },
@@ -141,7 +128,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             const SizedBox(height: 45),
-            
           ],
         ),
       ),

@@ -118,15 +118,15 @@ class _EditBeneficiarioPageState extends State<EditBeneficiarioPage> {
       labelText: labelText,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Colors.blueAccent),
+        borderSide: BorderSide(color: Color.fromARGB(100, 86, 100, 245)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Colors.blueAccent),
+        borderSide: BorderSide(color: Color.fromARGB(100, 86, 100, 245)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Colors.blueAccent),
+        borderSide: BorderSide(color: Color.fromARGB(100, 86, 100, 245)),
       ),
       contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
     );

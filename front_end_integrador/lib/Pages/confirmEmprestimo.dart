@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'perfil.dart';
 import '../Components/bottomNavBar.dart';
 import 'package:art_sweetalert/art_sweetalert.dart';
+import '../service/auth_service.dart';
 
 class ConfirmacaoPage extends StatelessWidget {
   final Map<String, dynamic> selectedUser;
@@ -15,6 +16,19 @@ class ConfirmacaoPage extends StatelessWidget {
   Future<Map<String, dynamic>> fetchItemDetails(String serialNumber) async {
     final String url =
         'http://localhost:8080/api/item/by-serial-number/$serialNumber';
+        final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return {};
+      }
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
     try {
       final response = await http.get(
@@ -103,10 +117,13 @@ class ConfirmacaoPage extends StatelessWidget {
 
       print("JSON Enviado: ${json.encode(requestBody)}");
 
-      // Enviar a requisição POST
+      final token = await AuthService.getToken();
       final response = await http.post(
         Uri.parse(url),
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
         body: json.encode(requestBody),
       );
 

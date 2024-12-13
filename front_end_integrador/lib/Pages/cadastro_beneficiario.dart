@@ -4,6 +4,7 @@ import 'package:front_integrador/Pages/perfil.dart';
 import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../service/auth_service.dart';
 
 class CadastroBeneficiarioPage extends StatefulWidget {
   @override
@@ -52,9 +53,13 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
     };
     print(userLoan);
     try {
+      final token = await AuthService.getToken();
       final response = await http.post(
         Uri.parse(url),
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
         body: jsonEncode(userLoan),
       );
 
@@ -255,7 +260,7 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
               onPressed: _confirm,
               child: Text('Cadastrar Beneficiário'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
+                backgroundColor: Colors.transparent,
                 padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
                 textStyle: TextStyle(fontSize: 16),
               ),

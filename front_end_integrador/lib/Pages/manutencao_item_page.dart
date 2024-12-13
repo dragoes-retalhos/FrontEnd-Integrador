@@ -5,6 +5,7 @@ import 'package:intl/intl.dart'; // Importar o pacote intl para formatação de 
 import 'perfil.dart';
 import '../Components/bottomNavBar.dart';
 import 'package:art_sweetalert/art_sweetalert.dart';
+import '../service/auth_service.dart';
 
 class ManutencaoPage extends StatefulWidget {
   final int itemId;
@@ -37,8 +38,19 @@ class _ManutencaoPageState extends State<ManutencaoPage> {
 
   Future<void> fetchItemDetails() async {
     try {
+      final url = Uri.parse('http://localhost:8080/api/item/${widget.itemId}');
+      final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/item/${widget.itemId}'),
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
       );
 
       if (response.statusCode == 200) {
@@ -84,9 +96,13 @@ class _ManutencaoPageState extends State<ManutencaoPage> {
     print('Corpo da requisição: ${jsonEncode(maintenanceRequestBody)}');
 
     try {
+      final token = await AuthService.getToken();
       final maintenanceResponse = await http.post(
         Uri.parse('http://localhost:8080/api/maintenance'),
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
         body: jsonEncode(maintenanceRequestBody),
       );
 

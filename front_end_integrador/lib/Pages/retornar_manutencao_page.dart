@@ -5,6 +5,7 @@ import 'package:intl/intl.dart'; // Importar o pacote intl para formatação de 
 import 'perfil.dart';
 import '../Components/bottomNavBar.dart';
 import 'package:art_sweetalert/art_sweetalert.dart';
+import '/service/auth_service.dart'; // Add this line
 
 class RetornarManutencaoPage extends StatefulWidget {
   final int itemId;
@@ -29,14 +30,29 @@ class _RetornarManutencaoPageState extends State<RetornarManutencaoPage> {
   @override
   void initState() {
     super.initState();
-    fetchMaintenanceDetails();
+    descriptionController = TextEditingController();
+    maintenanceDateController = TextEditingController();
+    nextMaintenanceDateController = TextEditingController();
+    costController = TextEditingController();
     fetchItemDetails();
+    fetchMaintenanceDetails();
   }
 
   Future<void> fetchItemDetails() async {
     try {
+      final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
+      final url = Uri.parse('http://localhost:8080/api/item/${widget.itemId}');
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/item/${widget.itemId}'),
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
       );
 
       if (response.statusCode == 200) {
@@ -58,8 +74,19 @@ class _RetornarManutencaoPageState extends State<RetornarManutencaoPage> {
 
   Future<void> fetchMaintenanceDetails() async {
     try {
+      final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
+      final url = Uri.parse('http://localhost:8080/api/maintenance/${widget.itemId}');
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/maintenance/${widget.itemId}'),
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
       );
 
       if (response.statusCode == 200) {
@@ -68,10 +95,10 @@ class _RetornarManutencaoPageState extends State<RetornarManutencaoPage> {
           // Ordenar as manutenções pelo ID em ordem decrescente e pegar a primeira
           final maintenance = data.reduce((a, b) => a['idMaintenance'] > b['idMaintenance'] ? a : b);
           setState(() {
-            descriptionController = TextEditingController(text: maintenance['description']);
-            maintenanceDateController = TextEditingController(text: _formatDate(maintenance['creationDate']));
-            nextMaintenanceDateController = TextEditingController(text: _formatDate(maintenance['deliveryDate']));
-            costController = TextEditingController(text: maintenance['cost'].toString());
+            descriptionController.text = maintenance['description'];
+            maintenanceDateController.text = _formatDate(maintenance['creationDate']);
+            nextMaintenanceDateController.text = _formatDate(maintenance['deliveryDate']);
+            costController.text = maintenance['cost'].toString();
             isLoading = false;
           });
         } else {
@@ -127,9 +154,18 @@ class _RetornarManutencaoPageState extends State<RetornarManutencaoPage> {
     print('Corpo da requisição: ${jsonEncode(requestBody)}');
 
     try {
+      final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
       final response = await http.put(
         Uri.parse('http://localhost:8080/api/maintenance/up-date/${widget.itemId}'),
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
         body: jsonEncode(requestBody),
       );
 
@@ -149,7 +185,10 @@ class _RetornarManutencaoPageState extends State<RetornarManutencaoPage> {
 
         final itemResponse = await http.put(
           Uri.parse('http://localhost:8080/api/item/${widget.itemId}'),
-          headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
           body: jsonEncode(itemRequestBody),
         );
 
@@ -215,15 +254,15 @@ class _RetornarManutencaoPageState extends State<RetornarManutencaoPage> {
       labelText: labelText,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Colors.blueAccent),
+        borderSide: BorderSide(color: Color.fromARGB(100, 86, 100, 245)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Colors.blueAccent),
+        borderSide: BorderSide(color: Color.fromARGB(100, 86, 100, 245)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Colors.blueAccent),
+        borderSide: BorderSide(color: Color.fromARGB(100, 86, 100, 245)),
       ),
       contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
     );

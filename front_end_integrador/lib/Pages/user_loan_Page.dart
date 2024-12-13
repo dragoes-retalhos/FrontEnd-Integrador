@@ -6,6 +6,7 @@ import '../../Components/bottomNavBar.dart';
 import '../../models/user_loan.dart';
 import '../../Components/userLoanCard.dart';
 import 'cadastro_beneficiario.dart';
+import '../../service/auth_service.dart';
 
 class BeneficiadosPage extends StatefulWidget {
   @override
@@ -44,8 +45,19 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
 
   Future<void> _fetchBeneficiados() async {
     try {
-      final response =
-          await http.get(Uri.parse('http://localhost:8080/api/userLoan'));
+      final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
+      final response = await http.get(
+        Uri.parse('http://localhost:8080/api/userLoan'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
         setState(() {

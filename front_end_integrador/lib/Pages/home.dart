@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'emprestimo.dart';
 import 'perfil.dart';
 import '../Components/bottomNavBar.dart';
+import '../service/auth_service.dart'; // Import do serviço AuthService
 
 class HomePage extends StatefulWidget {
   @override
@@ -22,8 +23,21 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> fetchLoans() async {
     final url = Uri.parse('http://localhost:8080/api/loan/dinamic');
+
     try {
-      final response = await http.get(url);
+      final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
@@ -33,6 +47,9 @@ class _HomePageState extends State<HomePage> {
           activeLoans =
               data.where((loan) => loan['status'] == "ATIVO").toList();
         });
+      } else if (response.statusCode == 401) {
+        print("Token expirado ou inválido. Faça login novamente.");
+        // Redirecionar para a tela de login se necessário
       } else {
         print("Erro ao buscar empréstimos: ${response.statusCode}");
       }
@@ -130,7 +147,8 @@ class _HomePageState extends State<HomePage> {
                   return _buildItemCard(
                     loan['loanedItems'] ?? 'Item desconhecido',
                     loan['loanDate'] ?? 'Data não informada',
-                    loan['expectedReturnDate'] ?? 'Data não informada');                      
+                    loan['expectedReturnDate'] ?? 'Data não informada',
+                  );
                 }).toList(),
               ),
             ),
@@ -211,10 +229,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildItemCard(
-      String item, List<dynamic> loanDate, List<dynamic> expectedReturnDate) {
-    String formatDate(List<dynamic> date) {
-      if (date.isEmpty) return "Data não disponível";
-      return "${date[2]}/${date[1]}/${date[0]} ${date.length > 3 ? '${date[3]}:${date[4]}' : ''}";
+      String item, String loanDate, String expectedReturnDate) {
+    String formatDate(String date) {
+      if (date == "Data não informada") return "Data não disponível";
+      // Convertendo a data string para formato desejado
+      final parsedDate = DateTime.parse(date);
+      return "${parsedDate.day}/${parsedDate.month}/${parsedDate.year}";
     }
 
     return Card(

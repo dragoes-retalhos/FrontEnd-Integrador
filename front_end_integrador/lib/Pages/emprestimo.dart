@@ -5,6 +5,7 @@ import 'perfil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import '../Components/bottomNavBar.dart';
 import 'confirmEmprestimo.dart';
+import '../service/auth_service.dart';
 
 class EmprestimoPage extends StatefulWidget {
   @override
@@ -27,8 +28,19 @@ class _EmprestimoPageState extends State<EmprestimoPage> {
   }
 
   Future<void> _fetchUsers() async {
-    final response =
-        await http.get(Uri.parse('http://localhost:8080/api/userLoan'));
+    final token = await AuthService.getToken();
+    if (token == null) {
+      print("Token não encontrado. Faça login novamente.");
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse('http://localhost:8080/api/userLoan'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
     if (response.statusCode == 200) {
       final List<dynamic> usersJson = jsonDecode(response.body);
       setState(() {
@@ -40,8 +52,19 @@ class _EmprestimoPageState extends State<EmprestimoPage> {
   }
 
   Future<void> _fetchAllItems() async {
-    final response =
-        await http.get(Uri.parse('http://localhost:8080/api/item/all-itens'));
+    final token = await AuthService.getToken();
+    if (token == null) {
+      print("Token não encontrado. Faça login novamente.");
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse('http://localhost:8080/api/item/all-itens'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
     if (response.statusCode == 200) {
       final List<dynamic> itemsJson = jsonDecode(response.body);
       setState(() {

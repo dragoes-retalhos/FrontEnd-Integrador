@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart'; // Importa o pacote para formatação de data
 import 'perfil.dart';
 import '../../Components/bottomNavBar.dart';
+import '../service/auth_service.dart'; // Importa o serviço AuthService
 
 class ItemDetailPage extends StatefulWidget {
   final int itemId;
@@ -33,8 +34,19 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   // Função para buscar detalhes do item
   Future<void> fetchItemDetails() async {
     try {
-      final response = await http
-          .get(Uri.parse('http://localhost:8080/api/item/${widget.itemId}'));
+      final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
+      final response = await http.get(
+        Uri.parse('http://localhost:8080/api/item/${widget.itemId}'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
       if (response.statusCode == 200) {
         setState(() {
           itemDetails = json.decode(response.body);
@@ -57,8 +69,19 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   // Função para buscar o histórico de empréstimos do item
   Future<void> fetchLoanHistory() async {
     try {
-      final response = await http.get(Uri.parse(
-          'http://localhost:8080/api/loan/LoanItemHistory/${widget.itemId}'));
+      final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
+      final response = await http.get(
+        Uri.parse('http://localhost:8080/api/loan/LoanItemHistory/${widget.itemId}'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
       if (response.statusCode == 200) {
         setState(() {
           loanHistory = json.decode(response.body);
@@ -78,8 +101,19 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   // Função para buscar o histórico de manutenções do item
   Future<void> fetchMaintenanceHistory() async {
     try {
-      final response = await http.get(Uri.parse(
-          'http://localhost:8080/api/maintenance/${widget.itemId}'));
+      final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
+      final response = await http.get(
+        Uri.parse('http://localhost:8080/api/maintenance/${widget.itemId}'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
       if (response.statusCode == 200) {
         setState(() {
           maintenanceHistory = json.decode(response.body);

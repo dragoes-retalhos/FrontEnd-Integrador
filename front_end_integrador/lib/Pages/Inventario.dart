@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '../Pages/perfil.dart';
 import '../Components/bottomNavBar.dart';
 import '../Pages/InventarioItem.dart';
+import '../service/auth_service.dart';
 
 class InventarioPage extends StatefulWidget {
   @override
@@ -23,7 +24,7 @@ class _InventarioPageState extends State<InventarioPage> {
     super.initState();
     fetchItems();
 
-    // Ouvir as mudanças de foco
+  
     focusNode.addListener(() {
       setState(() {
         if (focusNode.hasFocus) {
@@ -39,8 +40,19 @@ class _InventarioPageState extends State<InventarioPage> {
 
   Future<void> fetchItems() async {
     try {
-      final response = await http
-          .get(Uri.parse('http://localhost:8080/api/item/dynamiclist'));
+      final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
+      final response = await http.get(
+        Uri.parse('http://localhost:8080/api/item/dynamiclist'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);

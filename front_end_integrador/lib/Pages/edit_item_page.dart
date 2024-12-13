@@ -5,6 +5,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart'; // Importar o flutter
 import 'perfil.dart';
 import '../Components/bottomNavBar.dart';
 import 'package:art_sweetalert/art_sweetalert.dart';
+import '../service/auth_service.dart';
 
 class EditItemPage extends StatefulWidget {
   final int itemId;
@@ -37,8 +38,19 @@ class _EditItemPageState extends State<EditItemPage> {
 
   Future<void> fetchItemDetails() async {
     try {
+      final url = Uri.parse('http://localhost:8080/api/item/${widget.itemId}');
+      final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/item/${widget.itemId}'),
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
       );
 
       if (response.statusCode == 200) {
@@ -66,8 +78,20 @@ class _EditItemPageState extends State<EditItemPage> {
   }
 
   Future<void> fetchBrandsAndModels() async {
-    final url = 'http://localhost:8080/api/item/brands-and-models'; // URL da sua API
-    final response = await http.get(Uri.parse(url));
+    final url = 'http://localhost:8080/api/item/brands-and-models'; 
+    final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
+    final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);

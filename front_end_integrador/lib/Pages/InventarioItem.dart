@@ -4,9 +4,10 @@ import 'package:http/http.dart' as http;
 import '../Pages/perfil.dart';
 import '../Components/bottomNavBar.dart';
 import '../Pages/item_detalhe.dart';
-import '../Pages/edit_item_page.dart'; // Importe a página de edição
-import '../Pages/manutencao_item_page.dart'; // Importe a página de manutenção
-import '../Pages/retornar_manutencao_page.dart'; // Importe a página de retornar manutenção
+import '../Pages/edit_item_page.dart'; 
+import '../Pages/manutencao_item_page.dart'; 
+import '../Pages/retornar_manutencao_page.dart'; 
+import '../service/auth_service.dart';
 
 class InventarioItem extends StatefulWidget {
   final String itemName;
@@ -50,9 +51,18 @@ class _InventarioItemState extends State<InventarioItem> {
 
   Future<void> fetchItems() async {
     try {
+      final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
       final response = await http.get(
         Uri.parse('http://localhost:8080/api/item/by-name/${widget.itemName}'),
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
       );
 
       if (response.statusCode == 200) {
@@ -137,7 +147,7 @@ class _InventarioItemState extends State<InventarioItem> {
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(60.0),
                   borderSide: BorderSide(
-                      color: Color.fromARGB(255, 86, 100, 245), width: 2),
+                      color: Color.fromARGB(100, 86, 100, 245), width: 2),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(60.0),

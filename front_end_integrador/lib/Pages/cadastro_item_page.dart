@@ -6,6 +6,7 @@ import 'perfil.dart';
 import 'package:art_sweetalert/art_sweetalert.dart';
 import '../Components/bottomNavBar.dart';
 import 'home.dart';
+import '../service/auth_service.dart';
 
 class CadastroItemPage extends StatefulWidget {
   @override
@@ -28,11 +29,35 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
   List<String> brands = [];
   List<String> models = [];
 
+  String? authToken;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadToken();
+    fetchBrandsAndModels();
+  }
+
+  Future<void> _loadToken() async {
+    authToken = await AuthService.getToken();
+  }
+
   // Função para pegar marcas e modelos
   Future<void> fetchBrandsAndModels() async {
-    final url =
-        'http://localhost:8080/api/item/brands-and-models'; // URL da sua API
-    final response = await http.get(Uri.parse(url));
+    final url = 'http://localhost:8080/api/item/brand-models'; // URL da sua API
+    final token = await AuthService.getToken();
+    print(token);
+    if (token == null) {
+      print("Token não encontrado. Faça login novamente.");
+      return;
+    }
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -43,12 +68,6 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
     } else {
       throw Exception('Erro ao carregar marcas e modelos');
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchBrandsAndModels();
   }
 
   // Função para cadastrar o item
@@ -66,10 +85,15 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
     };
 
     try {
+      final token = await AuthService.getToken();
+      print(token);
       final response = await http.post(
         Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(itemData),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode(itemData), // Adicionando o corpo da requisição
       );
 
       if (response.statusCode == 201 && mounted) {
@@ -158,7 +182,8 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
                         labelText: 'Nome do Item',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.blueAccent),
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(100, 86, 100, 245)),
                         ),
                         contentPadding:
                             EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -183,8 +208,8 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
                                 labelText: 'Marca',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
-                                  borderSide:
-                                      BorderSide(color: Colors.blueAccent),
+                                  borderSide: BorderSide(
+                                      color: Color.fromARGB(100, 86, 100, 245)),
                                 ),
                                 contentPadding: EdgeInsets.symmetric(
                                     vertical: 12, horizontal: 16),
@@ -225,8 +250,8 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
                                 labelText: 'Modelo',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
-                                  borderSide:
-                                      BorderSide(color: Colors.blueAccent),
+                                  borderSide: BorderSide(
+                                      color: Color.fromARGB(100, 86, 100, 245)),
                                 ),
                                 contentPadding: EdgeInsets.symmetric(
                                     vertical: 12, horizontal: 16),
@@ -269,7 +294,8 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
                         labelText: 'Número de Série',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.blueAccent),
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(100, 86, 100, 245)),
                         ),
                         contentPadding:
                             EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -284,7 +310,8 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
                         labelText: 'Número da Nota Fiscal',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.blueAccent),
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(100, 86, 100, 245)),
                         ),
                         contentPadding:
                             EdgeInsets.symmetric(vertical: 12, horizontal: 16),
