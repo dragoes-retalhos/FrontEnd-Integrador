@@ -235,7 +235,7 @@ class _PerfilPageState extends State<PerfilPage> {
                           ),
                           child: Icon(
                             Icons.photo, // Ícone de edição
-                            color: Colors.blue, // Cor do ícone
+                            color: Color.fromARGB(100, 86, 100, 245), // Cor do ícone
                             size: 20, // Tamanho do ícone
                           ),
                         ),
@@ -278,7 +278,7 @@ class _PerfilPageState extends State<PerfilPage> {
                     child: Text('Editar'), // Botão para abrir o diálogo
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
-                      backgroundColor: Colors.blue, // Cor do texto
+                      backgroundColor: Color.fromARGB(100, 86, 100, 245), // Cor do texto
                       shape: RoundedRectangleBorder(
                         borderRadius:
                             BorderRadius.circular(5), // Arredondar os cantos
@@ -321,7 +321,7 @@ class _PerfilPageState extends State<PerfilPage> {
                     child: Text('Editar'), // Botão para abrir o diálogo
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
-                      backgroundColor: Colors.blue, // Cor do texto
+                      backgroundColor: Color.fromARGB(100, 86, 100, 245), // Cor do texto
                       shape: RoundedRectangleBorder(
                         borderRadius:
                             BorderRadius.circular(5), // Arredondar os cantos
@@ -364,7 +364,7 @@ class _PerfilPageState extends State<PerfilPage> {
                     child: Text('Editar'), // Botão para abrir o diálogo
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
-                      backgroundColor: Colors.blue, // Cor do texto
+                      backgroundColor: Color.fromARGB(100, 86, 100, 245), // Cor do texto
                       shape: RoundedRectangleBorder(
                         borderRadius:
                             BorderRadius.circular(5), // Arredondar os cantos

@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:front_integrador/models/user_loan.dart';
 import 'package:front_integrador/Pages/user_loan_detalhes.dart';
 import 'package:front_integrador/Pages/edit_beneficiario_page.dart';
+import '../service/auth_service.dart';
 
 class UserLoanCard extends StatefulWidget {
   final UserLoan userLoan;
@@ -26,11 +27,11 @@ class _UserLoanCardState extends State<UserLoanCard> {
   late String selectedStatus;
   late String selectedType;
 
-  final statusMap = {'Ativo': 'ACTIVE', 'Inativo': 'DISABLED'};
+  final statusMap = {'Ativo': 'ATIVO', 'Inativo': 'DESATIVADO'};
   final typeMap = {
-    'Professor': 'TEACHER',
-    'Aluno': 'STUDENT',
-    'Empresarial': 'ENTERPRISE'
+    'Professor': 'PROFESSOR',
+    'Aluno': 'ALUNO',
+    'Empresarial': 'EMPRESA'
   };
 
   @override
@@ -83,49 +84,14 @@ class _UserLoanCardState extends State<UserLoanCard> {
     );
   }
 
-  Future<void> _saveUserLoan(
-      BuildContext context, Map<String, dynamic> requestBody) async {
-    // Remove 'loans' from the request body to prevent it from being updated
-    requestBody.remove('loans');
-
-    try {
-      final body = jsonEncode(requestBody);
-      print('Sending JSON Body: $body');
-
-      final response = await http.put(
-        Uri.parse('http://localhost:8080/api/userLoan'),
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        body: body,
-      );
-
-      if (response.statusCode == 201 && mounted) {
-        await ArtSweetAlert.show(
-          context: context,
-          artDialogArgs: ArtDialogArgs(
-            title: "Sucesso!",
-            text: "Beneficiado atualizado com sucesso!",
-            type: ArtSweetAlertType.success,
-          ),
-        );
-
-        Navigator.of(context).pop();
-        Navigator.pushReplacementNamed(context, '/beneficiados');
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('Erro ao atualizar o beneficiado: ${response.body}')),
-        );
-      }
-    } catch (e) {
-      print('Error encoding JSON: $e');
-    }
-  }
-
   Future<void> _deleteUserLoan() async {
+    final token = await AuthService.getToken();
     final response = await http.delete(
       Uri.parse('http://localhost:8080/api/userLoan/${widget.userLoan.id}'),
-      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
     );
 
     if (response.statusCode == 204) {
@@ -165,9 +131,9 @@ class _UserLoanCardState extends State<UserLoanCard> {
 
   String _getStatusText(String status) {
     switch (status) {
-      case 'ACTIVE':
+      case 'ATIVO':
         return 'Ativo';
-      case 'DISABLED':
+      case 'DESATIVADO':
         return 'Inativo';
       default:
         return status; // Retorna o status original se não corresponder
@@ -178,9 +144,9 @@ class _UserLoanCardState extends State<UserLoanCard> {
     switch (type) {
       case 'TEACHER':
         return 'Professor';
-      case 'STUDENT':
+      case 'ALUNO':
         return 'Aluno';
-      case 'ENTERPRISE':
+      case 'EMPRESA':
         return 'Empresarial';
       default:
         return type; // Retorna o tipo original se não corresponder

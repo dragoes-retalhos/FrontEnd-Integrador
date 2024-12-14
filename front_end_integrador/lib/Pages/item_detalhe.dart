@@ -1,22 +1,23 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart'; // Importa o pacote para formatação de data
+import 'package:intl/intl.dart';
 import 'perfil.dart';
 import '../../Components/bottomNavBar.dart';
-import '../service/auth_service.dart'; // Importa o serviço AuthService
+import '../service/auth_service.dart';
+import 'notificacao_page.dart';
 
 class ItemDetailPage extends StatefulWidget {
   final int itemId;
 
-  ItemDetailPage({required this.itemId});
+  const ItemDetailPage({Key? key, required this.itemId}) : super(key: key);
 
   @override
   _ItemDetailPageState createState() => _ItemDetailPageState();
 }
 
 class _ItemDetailPageState extends State<ItemDetailPage> {
-  Map<String, dynamic>? itemDetails;
+  Map<String, dynamic> itemDetails = {};
   List<dynamic> loanHistory = [];
   List<dynamic> maintenanceHistory = [];
   bool isLoading = true;
@@ -31,12 +32,15 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
     fetchMaintenanceHistory();
   }
 
-  // Função para buscar detalhes do item
   Future<void> fetchItemDetails() async {
     try {
       final token = await AuthService.getToken();
       if (token == null) {
         print("Token não encontrado. Faça login novamente.");
+        setState(() {
+          hasError = true;
+          isLoading = false;
+        });
         return;
       }
 
@@ -48,6 +52,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
         },
       );
       if (response.statusCode == 200) {
+        print('Resposta recebida: ${response.body}');
         setState(() {
           itemDetails = json.decode(response.body);
           isLoading = false;
@@ -59,6 +64,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
         });
       }
     } catch (e) {
+      print('Erro ao carregar item: $e');
       setState(() {
         hasError = true;
         isLoading = false;
@@ -72,11 +78,16 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
       final token = await AuthService.getToken();
       if (token == null) {
         print("Token não encontrado. Faça login novamente.");
+        setState(() {
+          hasError = true;
+          isLoading = false;
+        });
         return;
       }
 
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/loan/LoanItemHistory/${widget.itemId}'),
+        Uri.parse(
+            'http://localhost:8080/api/loan/LoanItemHistory/${widget.itemId}'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -87,14 +98,11 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
           loanHistory = json.decode(response.body);
         });
       } else {
-        setState(() {
-          hasError = true;
-        });
+        
       }
     } catch (e) {
-      setState(() {
-        hasError = true;
-      });
+      print('Erro ao carregar histórico de empréstimos: $e');
+      
     }
   }
 
@@ -104,6 +112,10 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
       final token = await AuthService.getToken();
       if (token == null) {
         print("Token não encontrado. Faça login novamente.");
+        setState(() {
+          hasError = true;
+          isLoading = false;
+        });
         return;
       }
 
@@ -119,47 +131,35 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
           maintenanceHistory = json.decode(response.body);
         });
       } else {
-        setState(() {
-          hasError = true;
-        });
+        
       }
     } catch (e) {
-      setState(() {
-        hasError = true;
-      });
+      print('Erro ao carregar histórico de manutenções: $e');
+      
     }
   }
 
   // Função para formatar valores
   String getStringValue(dynamic value) {
-    if (value is List) {
-      return value.map((item) => item.toString()).join(', ');
-    }
-    return value?.toString() ?? 'Valor não disponível';
+    if (value == null || value == '') return 'Valor não disponível';
+    if (value is List) return value.map((item) => item.toString()).join(', ');
+    return value.toString();
   }
 
   // Função para formatar datas no padrão dd/MM/yy
   String getFormattedDate(dynamic date) {
     try {
-      if (date is List && date.length >= 3) {
-        // Formato [ano, mês, dia, hora?, minuto?]
-        final parsedDate = DateTime(
-          date[0],
-          date[1],
-          date[2],
-          date.length > 3 ? date[3] : 0, // Hora (opcional)
-          date.length > 4 ? date[4] : 0, // Minuto (opcional)
-        );
-        return DateFormat('dd/MM/yy')
-            .format(parsedDate); // Alterado para dd/MM/yy
-      } else if (date is String) {
-        final parsedDate = DateTime.parse(date);
-        return DateFormat('dd/MM/yy')
-            .format(parsedDate); // Alterado para dd/MM/yy
+      if (date == null) return 'Data não disponível';
+      if (date is String) {
+        final parsedDate = DateTime.tryParse(date);
+        return parsedDate != null
+            ? DateFormat('dd/MM/yy').format(parsedDate)
+            : 'Data inválida';
       }
       return 'Data inválida';
     } catch (e) {
-      return 'Data inválida';
+      print('Erro ao formatar data: $e');
+      return 'Erro na data';
     }
   }
 
@@ -170,13 +170,19 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
         backgroundColor: Color(0xFF0000FF),
         iconTheme: IconThemeData(color: Colors.white),
         title: Text(
-          itemDetails?['nameItem'] ?? 'Nome não disponível',
+          itemDetails['nameItem'] ?? 'Nome não disponível',
           style: TextStyle(color: Colors.white, fontSize: 20),
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
@@ -201,90 +207,89 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       _buildReadOnlyInput(
-                          'Nome', getStringValue(itemDetails!['nameItem'])),
+                          'Nome', getStringValue(itemDetails['nameItem'])),
                       SizedBox(height: 8),
                       _buildReadOnlyInput('Número de Série',
-                          getStringValue(itemDetails!['serialNumber'])),
+                          getStringValue(itemDetails['serialNumber'])),
                       SizedBox(height: 8),
                       _buildReadOnlyInput('Número de Nota fiscal',
-                          getStringValue(itemDetails!['invoiceNumber'])),
+                          getStringValue(itemDetails['invoiceNumber'])),
                       SizedBox(height: 8),
                       _buildReadOnlyInput(
-                          'Marca', getStringValue(itemDetails!['brand'])),
+                          'Marca', getStringValue(itemDetails['brand'])),
                       SizedBox(height: 8),
                       _buildReadOnlyInput(
-                          'Modelo', getStringValue(itemDetails!['model'])),
+                          'Modelo', getStringValue(itemDetails['model'])),
                       SizedBox(height: 8),
                       _buildReadOnlyInput(
                         'Data de Entrada',
-                        itemDetails!['entryDate'] != null
-                            ? getFormattedDate(itemDetails!['entryDate'])
+                        itemDetails['entryDate'] != null
+                            ? getFormattedDate(itemDetails['entryDate'])
                             : 'Data de entrada não disponível',
                       ),
                       SizedBox(height: 8),
                       _buildReadOnlyInput(
                         'Próxima Manutenção',
-                        itemDetails!['nextCalibration'] != null
-                            ? getFormattedDate(itemDetails!['nextCalibration'])
+                        itemDetails['nextCalibration'] != null
+                            ? getFormattedDate(itemDetails['nextCalibration'])
                             : 'Data de manutenção não disponível',
                       ),
                       SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                showLoanHistory = false;
-                              });
-                            },
-                            child: Text('Manutenção'),
-                          ),
-                          SizedBox(width: 16),
-                          ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                showLoanHistory = true;
-                              });
-                            },
-                            child: Text('Empréstimo'),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16),
-                      showLoanHistory
-                          ? Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Histórico de Empréstimos:',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18),
-                                ),
-                                SizedBox(height: 8),
-                                ...loanHistory
-                                    .map((loan) => _buildLoanHistoryCard(loan))
-                                    .toList(),
-                              ],
-                            )
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Histórico de Manutenções:',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18),
-                                ),
-                                SizedBox(height: 8),
-                                ...maintenanceHistory
-                                    .map((maintenance) =>
-                                        _buildMaintenanceHistoryCard(
-                                            maintenance))
-                                    .toList(),
-                              ],
+                      if (loanHistory.isNotEmpty || maintenanceHistory.isNotEmpty)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  showLoanHistory = true;
+                                });
+                              },
+                              child: Text('Empréstimo'),
                             ),
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  showLoanHistory = false;
+                                });
+                              },
+                              child: Text('Manutenção'),
+                            ),
+                            SizedBox(width: 16),
+                          ],
+                        ),
+                      SizedBox(height: 16),
+                      if (showLoanHistory && loanHistory.isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Histórico de Empréstimos:',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                            SizedBox(height: 8),
+                            ...loanHistory
+                                .map((loan) => _buildLoanHistoryCard(loan))
+                                .toList(),
+                          ],
+                        ),
+                      if (!showLoanHistory && maintenanceHistory.isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Histórico de Manutenções:',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                            SizedBox(height: 8),
+                            ...maintenanceHistory
+                                .map((maintenance) =>
+                                    _buildMaintenanceHistoryCard(maintenance))
+                                .toList(),
+                          ],
+                        ),
                     ],
                   ),
                 ),

@@ -7,6 +7,7 @@ import '../../models/user_loan.dart';
 import '../../Components/userLoanCard.dart';
 import 'cadastro_beneficiario.dart';
 import '../../service/auth_service.dart';
+import 'notificacao_page.dart';
 
 class BeneficiadosPage extends StatefulWidget {
   @override
@@ -44,38 +45,37 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
   }
 
   Future<void> _fetchBeneficiados() async {
-    try {
-      final token = await AuthService.getToken();
-      if (token == null) {
-        print("Token não encontrado. Faça login novamente.");
-        return;
-      }
-
-      final response = await http.get(
-        Uri.parse('http://localhost:8080/api/userLoan'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
-      if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
-        setState(() {
-          _beneficiados = data.map((json) => UserLoan.fromJson(json)).toList();
-          _filteredBeneficiados =
-              _beneficiados; // Inicialmente, todos os beneficiados são filtrados
-          _isLoading = false;
-        });
-      } else {
-        throw Exception('Falha ao carregar beneficiados');
-      }
-    } catch (error) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = error.toString();
-      });
+  try {
+    final token = await AuthService.getToken();
+    if (token == null) {
+      print("Token não encontrado. Faça login novamente.");
+      return;
     }
+
+    final response = await http.get(
+      Uri.parse('http://localhost:8080/api/userLoan'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+      setState(() {
+        _beneficiados = data.map((json) => UserLoan.fromJson(json)).toList();
+        _filteredBeneficiados = _beneficiados; // Inicialmente, todos os beneficiados são filtrados
+        _isLoading = false;
+      });
+    } else {
+      throw Exception('Falha ao carregar beneficiados');
+    }
+  } catch (error) {
+    setState(() {
+      _isLoading = false;
+      _errorMessage = error.toString();
+    });
   }
+}
 
   void _filterBeneficiados(String query) {
     final filtered = _beneficiados.where((beneficiado) {
@@ -115,9 +115,15 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
           ),
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),

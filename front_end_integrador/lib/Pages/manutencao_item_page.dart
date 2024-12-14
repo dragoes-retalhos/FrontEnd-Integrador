@@ -6,6 +6,7 @@ import 'perfil.dart';
 import '../Components/bottomNavBar.dart';
 import 'package:art_sweetalert/art_sweetalert.dart';
 import '../service/auth_service.dart';
+import 'notificacao_page.dart';
 
 class ManutencaoPage extends StatefulWidget {
   final int itemId;
@@ -122,7 +123,10 @@ class _ManutencaoPageState extends State<ManutencaoPage> {
 
         final itemResponse = await http.put(
           Uri.parse('http://localhost:8080/api/item/${widget.itemId}'),
-          headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
           body: jsonEncode(itemRequestBody),
         );
 
@@ -188,15 +192,15 @@ class _ManutencaoPageState extends State<ManutencaoPage> {
       labelText: labelText,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Colors.blueAccent),
+        borderSide: BorderSide(color: Color.fromARGB(100, 86, 100, 245)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Colors.blueAccent),
+        borderSide: BorderSide(color: Color.fromARGB(100, 86, 100, 245)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Colors.blueAccent),
+        borderSide: BorderSide(color: Color.fromARGB(100, 86, 100, 245)),
       ),
       contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
     );
@@ -219,9 +223,15 @@ class _ManutencaoPageState extends State<ManutencaoPage> {
           ],
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),

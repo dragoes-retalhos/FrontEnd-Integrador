@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'perfil.dart';
 import '../Components/bottomNavBar.dart';
 import 'package:art_sweetalert/art_sweetalert.dart';
+import '../service/auth_service.dart';
+import 'notificacao_page.dart';
 
 class EditBeneficiarioPage extends StatefulWidget {
   final UserLoan userLoan;
@@ -27,12 +29,8 @@ class _EditBeneficiarioPageState extends State<EditBeneficiarioPage> {
   late String selectedStatus;
   late String selectedType;
 
-  final statusMap = {'Ativo': 'ATIVO', 'Inativo': 'DESATIVADO'};
-  final typeMap = {
-    'Professor': 'PROFESSOR',
-    'Aluno': 'ALUNO',
-    'Empresarial': 'EMPRESA'
-  };
+  final statusMap = {'Ativo': 0, 'Inativo': 1};
+  final typeMap = {'Professor': 0, 'Aluno': 1, 'Empresarial': 2};
 
   @override
   void initState() {
@@ -66,17 +64,22 @@ class _EditBeneficiarioPageState extends State<EditBeneficiarioPage> {
       'enterprise': enterpriseController.text,
       'identification': identificationController.text,
       'phone': phoneController.text,
-      'statusUserEnum': statusMap[selectedStatus],
-      'typeUserLoanEnum': typeMap[selectedType],
+      'statusUser': statusMap[selectedStatus], // Envia 0 ou 1
+      'typeUserLoan': typeMap[selectedType],   // Envia 0, 1 ou 2
     };
+    print('Corpo da requisição: ${jsonEncode(requestBody)}');
 
     // Log do corpo da requisição
     print('Corpo da requisição: ${jsonEncode(requestBody)}');
 
     try {
+      final token = await AuthService.getToken();
       final response = await http.put(
         Uri.parse('http://localhost:8080/api/userLoan/${widget.userLoan.id}'),
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
         body: jsonEncode(requestBody),
       );
 
@@ -149,9 +152,15 @@ class _EditBeneficiarioPageState extends State<EditBeneficiarioPage> {
           ],
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),

@@ -1,71 +1,68 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'perfil.dart';
-import '../Components/bottomNavBar.dart';
 import 'package:art_sweetalert/art_sweetalert.dart';
 import '../service/auth_service.dart';
+import 'notificacao_page.dart';
+import '../Components/bottomNavBar.dart';
+import 'perfil.dart';
 
 class ConfirmacaoPage extends StatelessWidget {
   final Map<String, dynamic> selectedUser;
-  final List<Map<String, dynamic>> selectedItems;
+  final List<int> selectedItemIds;
 
-  ConfirmacaoPage({required this.selectedUser, required this.selectedItems});
+  ConfirmacaoPage({required this.selectedUser, required this.selectedItemIds});
 
-  // Função para buscar as informações do item pelo número de série
-  Future<Map<String, dynamic>> fetchItemDetails(String serialNumber) async {
-    final String url =
-        'http://localhost:8080/api/item/by-serial-number/$serialNumber';
-        final token = await AuthService.getToken();
-      if (token == null) {
-        print("Token não encontrado. Faça login novamente.");
-        return {};
-      }
+  // Função para buscar as informações do item pelo ID
+  Future<Map<String, dynamic>> fetchItemDetails(int itemId) async {
+    final String url = 'http://localhost:8080/api/item/$itemId';
+    final token = await AuthService.getToken();
+    if (token == null) {
+      print("Token não encontrado. Faça login novamente.");
+      return {};
+    }
 
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
 
-    try {
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {"Content-Type": "application/json"},
-      );
-
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
-      } else {
-        throw Exception('Erro ao buscar item: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Erro ao buscar o item: $e');
-      throw e;
+    if (response.statusCode == 200) {
+      return json.decode(utf8.decode(response.bodyBytes));
+    } else {
+      throw Exception('Erro ao buscar item: ${response.statusCode}');
     }
   }
 
   // Função para atualizar o status do item para "indisponível"
-  Future<void> atualizarStatusItem(int itemId) async {
-    final String url = 'http://localhost:8080/api/item/$itemId/status';
-    final Map<String, dynamic> statusData = {
-      'status': 'INDISPONIVEL',
-    };
+  Future<void> atualizarStatusItem(Map<String, dynamic> itemDetails) async {
+    final String url = 'http://localhost:8080/api/item/${itemDetails['id']}';
+    itemDetails['status'] = 3;
+    print(itemDetails);
+    
 
-    try {
-      final response = await http.put(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(statusData),
-      );
+    final token = await AuthService.getToken();
+    print(token);
+    if (token == null) {
+      print("Token não encontrado. Faça login novamente.");
+      return;
+    }
 
-      if (response.statusCode != 200) {
-        throw Exception('Erro ao atualizar status do item: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Erro ao atualizar status do item: $e');
+    final response = await http.put(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: json.encode(itemDetails),
+    );
+
+    if (response.statusCode != 200) {
+      print('Erro ao atualizar status do item: ${response.body}');
+      throw Exception('Erro ao atualizar status do item: ${response.statusCode}');
     }
   }
 
@@ -76,8 +73,8 @@ class ConfirmacaoPage extends StatelessWidget {
     try {
       // Buscar os IDs dos itens
       List<Map<String, dynamic>> itemDetailsList = [];
-      for (var item in selectedItems) {
-        var itemDetails = await fetchItemDetails(item['serialNumber']);
+      for (var itemId in selectedItemIds) {
+        var itemDetails = await fetchItemDetails(itemId);
         itemDetailsList.add(itemDetails);
       }
 
@@ -90,34 +87,22 @@ class ConfirmacaoPage extends StatelessWidget {
 
       // Construir o corpo da requisição
       Map<String, dynamic> requestBody = {
-        "loan": {
-          "loanDate": [2024, 12, 5, 10, 30],
-          "expectedReturnDate": [2024, 12, 20],
-          "status": "ATIVO",
-          "user": {
-            "id": 1,
-            "name": "Alice Johnson",
-            "email": "alice.johnson@example.com",
-            "password": "password456"
-          },
-          "userLoan": {
-            "id": selectedUser['id'],
-            "name": selectedUser['name'],
-            "email": selectedUser['email'],
-            "rna": selectedUser['rna'],
-            "enterprise": selectedUser['enterprise'],
-            "identification": selectedUser['identification'],
-            "phone": selectedUser['phone'],
-            "statusUserEnum": selectedUser['statusUserEnum'],
-            "typeUserLoanEnum": selectedUser['typeUserLoanEnum']
-          }
-        },
+        "loanDate": "2024-12-05T10:30:00Z",
+        "expectedReturnDate": "2024-12-20",
+        "status": "ATIVO",
+        "userId": 1,
+        "userLoanId": selectedUser['id'],
         "laboratoryItemIds": itemDetailsList.map((item) => item['id']).toList(),
       };
 
-      print("JSON Enviado: ${json.encode(requestBody)}");
+      print("JSON Enviado: ${jsonEncode(requestBody)}");
 
       final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
       final response = await http.post(
         Uri.parse(url),
         headers: {
@@ -131,7 +116,7 @@ class ConfirmacaoPage extends StatelessWidget {
       if (response.statusCode == 201 || response.statusCode == 200) {
         // Atualizar o status dos itens para "indisponível"
         for (var item in itemDetailsList) {
-          await atualizarStatusItem(item['id']);
+          await atualizarStatusItem(item);
         }
 
         await ArtSweetAlert.show(
@@ -179,9 +164,15 @@ class ConfirmacaoPage extends StatelessWidget {
           ),
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
@@ -192,7 +183,7 @@ class ConfirmacaoPage extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => PerfilPage()),
               );
             },
-          )
+          ),
         ],
         toolbarHeight: 80,
       ),
@@ -200,7 +191,7 @@ class ConfirmacaoPage extends StatelessWidget {
         children: [
           FutureBuilder<List<Map<String, dynamic>>>(
             future: Future.wait(
-              selectedItems.map((item) => fetchItemDetails(item['serialNumber'])),
+              selectedItemIds.map((itemId) => fetchItemDetails(itemId)),
             ),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {

@@ -5,7 +5,9 @@ import 'dart:convert';
 import 'emprestimo.dart';
 import 'perfil.dart';
 import '../Components/bottomNavBar.dart';
-import '../service/auth_service.dart'; // Import do serviço AuthService
+import '../service/auth_service.dart';
+import 'notificacao_page.dart';
+import 'retorno_emprestimo.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -74,17 +76,19 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(color: Colors.white, fontSize: 20),
               ),
               SizedBox(height: 4),
-              Text(
-                'Olá, Name',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
             ],
           ),
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
@@ -142,14 +146,17 @@ class _HomePageState extends State<HomePage> {
             ),
             SizedBox(height: 20),
             Expanded(
-              child: ListView(
-                children: activeLoans.map((loan) {
+              child: ListView.builder(
+                itemCount: activeLoans.length,
+                itemBuilder: (context, index) {
+                  final loan = activeLoans[index];
                   return _buildItemCard(
+                    loan['id'].toString(), // Convertendo o ID para String
                     loan['loanedItems'] ?? 'Item desconhecido',
                     loan['loanDate'] ?? 'Data não informada',
                     loan['expectedReturnDate'] ?? 'Data não informada',
                   );
-                }).toList(),
+                },
               ),
             ),
           ],
@@ -229,31 +236,54 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildItemCard(
-      String item, String loanDate, String expectedReturnDate) {
+      String loanId, // Recebendo o id do empréstimo
+      String item,
+      String loanDate,
+      String expectedReturnDate) {
     String formatDate(String date) {
       if (date == "Data não informada") return "Data não disponível";
       // Convertendo a data string para formato desejado
-      final parsedDate = DateTime.parse(date);
-      return "${parsedDate.day}/${parsedDate.month}/${parsedDate.year}";
+      try {
+        final parsedDate = DateTime.parse(date);
+        return "${parsedDate.day}/${parsedDate.month}/${parsedDate.year}";
+      } catch (e) {
+        return "Data inválida";
+      }
     }
 
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      margin: EdgeInsets.symmetric(vertical: 10),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(item,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 5),
-            Text('Data de Empréstimo: ${formatDate(loanDate)}'),
-            Text('Data de Previsão: ${formatDate(expectedReturnDate)}'),
-          ],
+    return GestureDetector(
+      onTap: () {
+        // Quando o card for clicado, direciona para a página de retorno
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ReturnLoanPage(
+              loanId: loanId,
+              item: item,
+              loanDate: loanDate,
+              expectedReturnDate: expectedReturnDate,
+            ),
+          ),
+        );
+      },
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        margin: EdgeInsets.symmetric(vertical: 10),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(item,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              SizedBox(height: 5),
+              Text('Data de Empréstimo: ${formatDate(loanDate)}'),
+              Text('Data de Previsão: ${formatDate(expectedReturnDate)}'),
+            ],
+          ),
         ),
       ),
     );

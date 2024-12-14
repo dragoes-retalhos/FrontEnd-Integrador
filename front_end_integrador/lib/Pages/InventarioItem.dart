@@ -8,6 +8,7 @@ import '../Pages/edit_item_page.dart';
 import '../Pages/manutencao_item_page.dart'; 
 import '../Pages/retornar_manutencao_page.dart'; 
 import '../service/auth_service.dart';
+import 'notificacao_page.dart';
 
 class InventarioItem extends StatefulWidget {
   final String itemName;
@@ -60,7 +61,7 @@ class _InventarioItemState extends State<InventarioItem> {
       final response = await http.get(
         Uri.parse('http://localhost:8080/api/item/by-name/${widget.itemName}'),
         headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
+          'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
@@ -115,9 +116,15 @@ class _InventarioItemState extends State<InventarioItem> {
           ),
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
@@ -138,7 +145,7 @@ class _InventarioItemState extends State<InventarioItem> {
           children: [
             TextField(
               controller: filterController,
-              focusNode: focusNode, // Adiciona o FocusNode ao TextField
+              focusNode: focusNode, 
               decoration: InputDecoration(
                 labelText: 'Filtrar pelo Número de Série',
                 border: OutlineInputBorder(
@@ -224,7 +231,7 @@ class _InventarioItemState extends State<InventarioItem> {
                     if (item['serialNumber'] != null)
                       Text('Número de Série: ${item['serialNumber']}'),
                     if (item['status'] != null)
-                      Text('status: ${item['status']}'),
+                      Text('Status: ${item['status']}'),
                   ],
                 ),
               ),
@@ -233,13 +240,30 @@ class _InventarioItemState extends State<InventarioItem> {
                   IconButton(
                     icon: Icon(Icons.edit),
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              EditItemPage(itemId: item['id']),
-                        ),
-                      );
+                      if (item['status'] == 'MANUTENÇÃO') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Item está em manutenção e não pode ser editado.',
+                            ),
+                          ),
+                        );
+                      } else if (item['status'] == 'INDISPONÍVEL') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Item está emprestado e não pode ser editado.',
+                            ),
+                          ),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditItemPage(itemId: item['id']),
+                          ),
+                        );
+                      }
                     },
                   ),
                   IconButton(

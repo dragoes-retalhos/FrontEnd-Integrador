@@ -5,6 +5,7 @@ import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../service/auth_service.dart';
+import 'notificacao_page.dart';
 
 class CadastroBeneficiarioPage extends StatefulWidget {
   @override
@@ -39,31 +40,32 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
       "name": _nameController.text,
       "email": _emailController.text,
       "phone": _phoneController.text,
-      "statusUserEnum": "ATIVO",
-      "typeUserLoanEnum": _selectedType == "ALUNO"
-          ? "STUDENT"
-          : _selectedType == "PROFESSOR"
-              ? "TEACHER"
-              : _selectedType == "EMPRESA"
-                  ? "ENTERPRISE"
-                  : null,
-      if (_selectedType == 'Aluno') "rna": _additionalField1Controller.text,
-      if (_selectedType == 'Professor') "identification": _additionalField2Controller.text,
-      if (_selectedType == 'Empresarial') "enterprise": _additionalField1Controller.text,
+      "statusUserEnum": "ATIVO", // Status sempre 'ATIVO'
+      "typeUserLoan": _selectedType == "Aluno"
+          ? "1"
+          : _selectedType == "Professor"
+              ? "0"
+              : _selectedType == "Empresarial"
+                  ? "2"
+                  : null, // Altera para os tipos definidos conforme o cadastro
+      if (_selectedType == 'Aluno') "rna": _additionalField1Controller.text, // Adiciona RA para aluno
+      if (_selectedType == 'Professor') "identification": _additionalField2Controller.text, // Adiciona número do crachá para professor
+      if (_selectedType == 'Empresarial') "enterprise": _additionalField1Controller.text, // Nome da empresa para empresarial
     };
-    print(userLoan);
+
     try {
-      final token = await AuthService.getToken();
+      final token = await AuthService.getToken(); // Obtenção do token de autenticação
       final response = await http.post(
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $token', // Autenticação via Bearer Token
         },
-        body: jsonEncode(userLoan),
+        body: jsonEncode(userLoan), // Corpo da requisição com os dados do beneficiário
       );
-
-      if (response.statusCode == 201 && mounted) {
+        
+        print('Corpo da requisição: ${jsonEncode(userLoan)}');
+      if (response.statusCode == 201 && mounted) { // Se a criação for bem-sucedida
         await ArtSweetAlert.show(
           context: context,
           artDialogArgs: ArtDialogArgs(
@@ -72,22 +74,20 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
             type: ArtSweetAlertType.success,
           ),
         );
-        Navigator.pop(context);
-        Navigator.pushReplacementNamed(context, '/beneficiados');
-      } else if (mounted) {
+        Navigator.pop(context); // Volta para a tela anterior
+        Navigator.pushReplacementNamed(context, '/beneficiados'); // Redireciona para a página de beneficiados
+      } else if (mounted) { // Caso ocorra erro no cadastro
         final errorResponse = jsonDecode(response.body);
-        print("Erro: ${errorResponse['message']}");
         await ArtSweetAlert.show(
           context: context,
           artDialogArgs: ArtDialogArgs(
             title: "Erro",
-            text: "Falha ao cadastrar o beneficiário.",
+            text: "Falha ao cadastrar o beneficiário: ${errorResponse['message']}",
             type: ArtSweetAlertType.danger,
           ),
         );
       }
-    } catch (e) {
-      print("Erro: $e");
+    } catch (e) { // Caso ocorra erro na requisição
       await ArtSweetAlert.show(
         context: context,
         artDialogArgs: ArtDialogArgs(
@@ -116,9 +116,15 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
           ],
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),

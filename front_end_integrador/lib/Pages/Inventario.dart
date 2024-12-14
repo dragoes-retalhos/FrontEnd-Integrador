@@ -5,6 +5,7 @@ import '../Pages/perfil.dart';
 import '../Components/bottomNavBar.dart';
 import '../Pages/InventarioItem.dart';
 import '../service/auth_service.dart';
+import 'notificacao_page.dart';
 
 class InventarioPage extends StatefulWidget {
   @override
@@ -99,9 +100,15 @@ class _InventarioPageState extends State<InventarioPage> {
           ),
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),

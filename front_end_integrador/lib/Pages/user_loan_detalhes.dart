@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'perfil.dart';
 import '../Components/bottomNavBar.dart';
 import '../models/user_loan.dart';
+import 'notificacao_page.dart';
 
 class DetalhesBeneficiarioPage extends StatefulWidget {
   final UserLoan userLoan;
@@ -43,9 +44,15 @@ class _DetalhesBeneficiarioPageState extends State<DetalhesBeneficiarioPage> {
           ),
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),

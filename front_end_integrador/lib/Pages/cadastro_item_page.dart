@@ -7,6 +7,7 @@ import 'package:art_sweetalert/art_sweetalert.dart';
 import '../Components/bottomNavBar.dart';
 import 'home.dart';
 import '../service/auth_service.dart';
+import 'notificacao_page.dart';
 
 class CadastroItemPage extends StatefulWidget {
   @override
@@ -28,6 +29,8 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
 
   List<String> brands = [];
   List<String> models = [];
+  List<String> categoryOptions = ['Utensílio', 'Equipamento'];
+  String? selectedCategory;
 
   String? authToken;
 
@@ -74,6 +77,16 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
   Future<void> cadastrarItem() async {
     final url = 'http://localhost:8080/api/item'; // URL da sua API
 
+    // Determinar o valor da categoria
+    int categoryValue;
+    if (selectedCategory == 'Utensílio') {
+      categoryValue = 0;
+    } else if (selectedCategory == 'Equipamento') {
+      categoryValue = 1;
+    } else {
+      categoryValue = -1; // Valor padrão para categorias desconhecidas
+    }
+
     final Map<String, dynamic> itemData = {
       'nameItem': nameItemController.text,
       'brand': brandController.text,
@@ -82,6 +95,7 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
       'invoiceNumber': invoiceNumberController.text,
       'entryDate': entryDate.toIso8601String(),
       'nextCalibration': nextCalibration.toIso8601String(),
+      'category': categoryValue,
     };
 
     try {
@@ -147,9 +161,15 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
           ),
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
@@ -316,6 +336,39 @@ class _CadastroItemPageState extends State<CadastroItemPage> {
                         contentPadding:
                             EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                       ),
+                    ),
+                    SizedBox(height: 15),
+
+                    // Categoria
+                    DropdownButtonFormField<String>(
+                      value: selectedCategory,
+                      decoration: InputDecoration(
+                        labelText: 'Categoria',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(100, 86, 100, 245)),
+                        ),
+                        contentPadding:
+                            EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      ),
+                      items: categoryOptions.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedCategory = newValue;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, selecione a categoria';
+                        }
+                        return null;
+                      },
                     ),
                     SizedBox(height: 30), // Espaço maior antes do botão
 

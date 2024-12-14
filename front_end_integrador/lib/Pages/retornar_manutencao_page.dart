@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:intl/intl.dart'; // Importar o pacote intl para formatação de data
+import 'package:intl/intl.dart';
 import 'perfil.dart';
 import '../Components/bottomNavBar.dart';
 import 'package:art_sweetalert/art_sweetalert.dart';
-import '/service/auth_service.dart'; // Add this line
+import '/service/auth_service.dart'; 
+import 'notificacao_page.dart';
 
 class RetornarManutencaoPage extends StatefulWidget {
   final int itemId;
@@ -81,6 +82,7 @@ class _RetornarManutencaoPageState extends State<RetornarManutencaoPage> {
       }
 
       final url = Uri.parse('http://localhost:8080/api/maintenance/${widget.itemId}');
+      
       final response = await http.get(
         url,
         headers: {
@@ -93,12 +95,17 @@ class _RetornarManutencaoPageState extends State<RetornarManutencaoPage> {
         final List<dynamic> data = json.decode(response.body);
         if (data.isNotEmpty) {
           // Ordenar as manutenções pelo ID em ordem decrescente e pegar a primeira
-          final maintenance = data.reduce((a, b) => a['idMaintenance'] > b['idMaintenance'] ? a : b);
+          final maintenance = data.reduce((a, b) {
+            if (a['idMaintenance'] == null || b['idMaintenance'] == null) {
+              return a;
+            }
+            return a['idMaintenance'] > b['idMaintenance'] ? a : b;
+          });
           setState(() {
-            descriptionController.text = maintenance['description'];
+            descriptionController.text = maintenance['description'] ?? '';
             maintenanceDateController.text = _formatDate(maintenance['creationDate']);
             nextMaintenanceDateController.text = _formatDate(maintenance['deliveryDate']);
-            costController.text = maintenance['cost'].toString();
+            costController.text = maintenance['cost']?.toString() ?? '';
             isLoading = false;
           });
         } else {
@@ -123,16 +130,23 @@ class _RetornarManutencaoPageState extends State<RetornarManutencaoPage> {
     }
   }
 
-  String _formatDate(List<dynamic> dateList) {
-    final date = DateTime(
-      dateList[0],
-      dateList[1],
-      dateList[2],
-      dateList.length > 3 ? dateList[3] : 0,
-      dateList.length > 4 ? dateList[4] : 0,
-      dateList.length > 5 ? dateList[5] : 0,
-    );
-    return DateFormat('dd/MM/yyyy').format(date);
+  String _formatDate(dynamic date) {
+    if (date is List) {
+      final dateTime = DateTime(
+        date[0],
+        date[1],
+        date[2],
+        date.length > 3 ? date[3] : 0,
+        date.length > 4 ? date[4] : 0,
+        date.length > 5 ? date[5] : 0,
+      );
+      return DateFormat('dd/MM/yyyy').format(dateTime);
+    } else if (date is String) {
+      final dateTime = DateTime.parse(date);
+      return DateFormat('dd/MM/yyyy').format(dateTime);
+    } else {
+      throw ArgumentError('Formato de data inválido');
+    }
   }
 
   Future<void> _updateMaintenance() async {
@@ -285,9 +299,15 @@ class _RetornarManutencaoPageState extends State<RetornarManutencaoPage> {
           ],
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
