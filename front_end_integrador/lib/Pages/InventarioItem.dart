@@ -4,6 +4,11 @@ import 'package:http/http.dart' as http;
 import '../Pages/perfil.dart';
 import '../Components/bottomNavBar.dart';
 import '../Pages/item_detalhe.dart';
+import '../Pages/edit_item_page.dart'; 
+import '../Pages/manutencao_item_page.dart'; 
+import '../Pages/retornar_manutencao_page.dart'; 
+import '../service/auth_service.dart';
+import 'notificacao_page.dart';
 
 class InventarioItem extends StatefulWidget {
   final String itemName;
@@ -47,12 +52,22 @@ class _InventarioItemState extends State<InventarioItem> {
 
   Future<void> fetchItems() async {
     try {
+      final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
       final response = await http.get(
         Uri.parse('http://localhost:8080/api/item/by-name/${widget.itemName}'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
           items = data; // Atribuição direta dos dados recebidos
           filteredItems =
@@ -101,9 +116,15 @@ class _InventarioItemState extends State<InventarioItem> {
           ),
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
@@ -124,7 +145,7 @@ class _InventarioItemState extends State<InventarioItem> {
           children: [
             TextField(
               controller: filterController,
-              focusNode: focusNode, // Adiciona o FocusNode ao TextField
+              focusNode: focusNode, 
               decoration: InputDecoration(
                 labelText: 'Filtrar pelo Número de Série',
                 border: OutlineInputBorder(
@@ -133,7 +154,7 @@ class _InventarioItemState extends State<InventarioItem> {
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(60.0),
                   borderSide: BorderSide(
-                      color: Color.fromARGB(255, 86, 100, 245), width: 2),
+                      color: Color.fromARGB(100, 86, 100, 245), width: 2),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(60.0),
@@ -148,7 +169,7 @@ class _InventarioItemState extends State<InventarioItem> {
             Expanded(
               child: isLoading // Verifica o estado de carregamento
                   ? Center(child: CircularProgressIndicator())
-                  : filteredItems.isNotEmpty 
+                  : filteredItems.isNotEmpty
                       ? ListView.builder(
                           itemCount: filteredItems.length,
                           itemBuilder: (context, index) {
@@ -164,15 +185,13 @@ class _InventarioItemState extends State<InventarioItem> {
         ),
       ),
       bottomNavigationBar: BottomNavBar(
-        selectedIndex: -1,
+        selectedIndex: 0, // Índice da página de empréstimo
         onItemTapped: (index) {
           if (index == 0) {
             Navigator.pushReplacementNamed(context, '/home');
           } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/emprestimo');
-          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/beneficiados');
-          } else if (index == 3) {
+          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/itens');
           }
         },
@@ -181,51 +200,112 @@ class _InventarioItemState extends State<InventarioItem> {
   }
 
   Widget buildItemCard(dynamic item) {
-  return GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ItemDetailPage(itemId: item['id']),
-        ),
-      );
-    },
-    child: Card(
-      margin: EdgeInsets.symmetric(vertical: 8.0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ItemDetailPage(itemId: item['id']),
+          ),
+        );
+      },
+      child: Card(
+        margin: EdgeInsets.symmetric(vertical: 8.0),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item['nameItem'],
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    if (item['serialNumber'] != null)
+                      Text('Número de Série: ${item['serialNumber']}'),
+                    if (item['status'] != null)
+                      Text('Status: ${item['status']}'),
+                  ],
+                ),
+              ),
+              Row(
                 children: [
-                  Text(
-                    item['nameItem'],
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  IconButton(
+                    icon: Icon(Icons.edit),
+                    onPressed: () {
+                      if (item['status'] == 'MANUTENÇÃO') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Item está em manutenção e não pode ser editado.',
+                            ),
+                          ),
+                        );
+                      } else if (item['status'] == 'INDISPONÍVEL') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Item está emprestado e não pode ser editado.',
+                            ),
+                          ),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditItemPage(itemId: item['id']),
+                          ),
+                        );
+                      }
+                    },
                   ),
-                  if (item['serialNumber'] != null)
-                    Text('Número de Série: ${item['serialNumber']}'),
-                  if (item['amount'] != null)
-                    Text('Quantidade: ${item['amount']}'),
-                  if (item['description'] != null)
-                    Text('Descrição: ${item['description']}'),
+                  IconButton(
+                    icon: Icon(Icons.build),
+                    onPressed: () {
+                      if (item['status'] == 'INATIVO') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(
+                                  'Item está inativo e não pode ser enviado para manutenção.')),
+                        );
+                      } else if (item['status'] == 'INDISPONÍVEL') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(
+                                  'Item está emprestado e não pode ser enviado para manutenção.')),
+                        );
+                      } else if (item['status'] == 'MANUTENÇÃO') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                RetornarManutencaoPage(itemId: item['id']),
+                          ),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ManutencaoPage(itemId: item['id']),
+                          ),
+                        );
+                      }
+                    },
+                  ),
                 ],
               ),
-            ),
-            IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: () {
-                // Lógica para a edição do item
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

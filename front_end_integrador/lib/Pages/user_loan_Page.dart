@@ -6,6 +6,8 @@ import '../../Components/bottomNavBar.dart';
 import '../../models/user_loan.dart';
 import '../../Components/userLoanCard.dart';
 import 'cadastro_beneficiario.dart';
+import '../../service/auth_service.dart';
+import 'notificacao_page.dart';
 
 class BeneficiadosPage extends StatefulWidget {
   @override
@@ -34,7 +36,8 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
           _iconColor = Colors.black; // Altera a cor do ícone para preto
           _textColor = Colors.black; // Altera a cor do texto para preto
         } else {
-          _iconColor = const Color.fromARGB(255, 0, 0, 0); // Restaura a cor do ícone
+          _iconColor =
+              const Color.fromARGB(255, 0, 0, 0); // Restaura a cor do ícone
           _textColor = Colors.black; // Restaura a cor do texto
         }
       });
@@ -42,30 +45,42 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
   }
 
   Future<void> _fetchBeneficiados() async {
-    try {
-      final response =
-          await http.get(Uri.parse('http://localhost:8080/api/userLoan'));
-      if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
-        setState(() {
-          _beneficiados = data.map((json) => UserLoan.fromJson(json)).toList();
-          _filteredBeneficiados = _beneficiados; // Inicialmente, todos os beneficiados são filtrados
-          _isLoading = false;
-        });
-      } else {
-        throw Exception('Falha ao carregar beneficiados');
-      }
-    } catch (error) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = error.toString();
-      });
+  try {
+    final token = await AuthService.getToken();
+    if (token == null) {
+      print("Token não encontrado. Faça login novamente.");
+      return;
     }
+
+    final response = await http.get(
+      Uri.parse('http://localhost:8080/api/userLoan'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+      setState(() {
+        _beneficiados = data.map((json) => UserLoan.fromJson(json)).toList();
+        _filteredBeneficiados = _beneficiados; // Inicialmente, todos os beneficiados são filtrados
+        _isLoading = false;
+      });
+    } else {
+      throw Exception('Falha ao carregar beneficiados');
+    }
+  } catch (error) {
+    setState(() {
+      _isLoading = false;
+      _errorMessage = error.toString();
+    });
   }
+}
 
   void _filterBeneficiados(String query) {
     final filtered = _beneficiados.where((beneficiado) {
-      final nameBeneficiado = beneficiado.name?.toLowerCase() ?? ''; // Ajuste conforme necessário
+      final nameBeneficiado =
+          beneficiado.name?.toLowerCase() ?? ''; // Ajuste conforme necessário
       return nameBeneficiado.contains(query.toLowerCase());
     }).toList();
 
@@ -100,9 +115,15 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
           ),
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
@@ -131,8 +152,7 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(60.0),
-                  borderSide: BorderSide(
-                      color: Color(0xFF5664F5), width: 2),
+                  borderSide: BorderSide(color: Color(0xFF5664F5), width: 2),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(60.0),
@@ -152,11 +172,13 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
                           ? ListView.builder(
                               itemCount: _filteredBeneficiados.length,
                               itemBuilder: (context, index) {
-                                final beneficiado = _filteredBeneficiados[index];
+                                final beneficiado =
+                                    _filteredBeneficiados[index];
                                 return UserLoanCard(userLoan: beneficiado);
                               },
                             )
-                          : Center(child: Text('Nenhum beneficiado encontrado.')),
+                          : Center(
+                              child: Text('Nenhum beneficiado encontrado.')),
             ),
             SizedBox(height: 10),
             FloatingActionButton(
@@ -164,7 +186,8 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
                 // Lógica para navegar para a página de cadastro
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CadastroBeneficiarioPage()),
+                  MaterialPageRoute(
+                      builder: (context) => CadastroBeneficiarioPage()),
                 );
               },
               backgroundColor: Color.fromARGB(100, 86, 100, 245),
@@ -174,15 +197,13 @@ class _BeneficiadosPageState extends State<BeneficiadosPage> {
         ),
       ),
       bottomNavigationBar: BottomNavBar(
-        selectedIndex: 2,
+        selectedIndex: 1, // Índice da página de empréstimo
         onItemTapped: (index) {
           if (index == 0) {
             Navigator.pushReplacementNamed(context, '/home');
           } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/import');
-          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/beneficiados');
-          } else if (index == 3) {
+          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/itens');
           }
         },

@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:front_integrador/Components/bottomNavBar.dart'; // Ajuste o caminho de importação conforme necessário
-import 'package:front_integrador/Pages/perfil.dart'; // Ajuste o caminho de importação conforme necessário
-import 'package:art_sweetalert/art_sweetalert.dart'; // Certifique-se de adicionar essa dependência no seu projeto
+import 'package:front_integrador/Components/bottomNavBar.dart';
+import 'package:front_integrador/Pages/perfil.dart';
+import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../service/auth_service.dart';
+import 'notificacao_page.dart';
 
 class CadastroBeneficiarioPage extends StatefulWidget {
   @override
-  _CadastroBeneficiarioPageState createState() =>
-      _CadastroBeneficiarioPageState();
+  _CadastroBeneficiarioPageState createState() => _CadastroBeneficiarioPageState();
 }
 
 class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
@@ -18,49 +19,53 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _additionalField1Controller =
-      TextEditingController();
-  final TextEditingController _additionalField2Controller =
-      TextEditingController();
+  final TextEditingController _additionalField1Controller = TextEditingController();
+  final TextEditingController _additionalField2Controller = TextEditingController();
 
   Future<void> _confirm() async {
-    String url = 'http://localhost:8080/api/userLoan';
+    if (_nameController.text.isEmpty || _emailController.text.isEmpty || _phoneController.text.isEmpty || _selectedType == null) {
+      await ArtSweetAlert.show(
+        context: context,
+        artDialogArgs: ArtDialogArgs(
+          title: "Erro",
+          text: "Todos os campos obrigatórios devem ser preenchidos.",
+          type: ArtSweetAlertType.danger,
+        ),
+      );
+      return;
+    }
 
+    String url = 'http://localhost:8080/api/userLoan';
     Map<String, dynamic> userLoan = {
       "name": _nameController.text,
       "email": _emailController.text,
       "phone": _phoneController.text,
-      "statusUserEnum": "ACTIVE",
-      "typeUserLoanEnum": _selectedType == "Aluno"
-          ? "STUDENT"
+      "statusUserEnum": "ATIVO", // Status sempre 'ATIVO'
+      "typeUserLoan": _selectedType == "Aluno"
+          ? "1"
           : _selectedType == "Professor"
-              ? "TEACHER"
+              ? "0"
               : _selectedType == "Empresarial"
-                  ? "ENTERPRISE"
-                  : null,
-      if (_selectedType == 'Aluno') "rna": _additionalField1Controller.text,
-      if (_selectedType == 'Professor')
-        "identification": _additionalField2Controller.text,
-      if (_selectedType == 'Empresarial')
-        "enterprise": _additionalField1Controller.text,
+                  ? "2"
+                  : null, // Altera para os tipos definidos conforme o cadastro
+      if (_selectedType == 'Aluno') "rna": _additionalField1Controller.text, // Adiciona RA para aluno
+      if (_selectedType == 'Professor') "identification": _additionalField2Controller.text, // Adiciona número do crachá para professor
+      if (_selectedType == 'Empresarial') "enterprise": _additionalField1Controller.text, // Nome da empresa para empresarial
     };
 
-    if (_selectedType == null ||
-        _nameController.text.isEmpty ||
-        _emailController.text.isEmpty ||
-        _phoneController.text.isEmpty) {
-      print("Erro: Campos obrigatórios não preenchidos.");
-      return;
-    }
-
     try {
+      final token = await AuthService.getToken(); // Obtenção do token de autenticação
       final response = await http.post(
         Uri.parse(url),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(userLoan),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token', // Autenticação via Bearer Token
+        },
+        body: jsonEncode(userLoan), // Corpo da requisição com os dados do beneficiário
       );
-
-      if (response.statusCode == 201 && mounted) {
+        
+        print('Corpo da requisição: ${jsonEncode(userLoan)}');
+      if (response.statusCode == 201 && mounted) { // Se a criação for bem-sucedida
         await ArtSweetAlert.show(
           context: context,
           artDialogArgs: ArtDialogArgs(
@@ -69,22 +74,20 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
             type: ArtSweetAlertType.success,
           ),
         );
-        Navigator.pop(context);
-        Navigator.pushReplacementNamed(context, '/beneficiados');
-      } else if (mounted) {
+        Navigator.pop(context); // Volta para a tela anterior
+        Navigator.pushReplacementNamed(context, '/beneficiados'); // Redireciona para a página de beneficiados
+      } else if (mounted) { // Caso ocorra erro no cadastro
         final errorResponse = jsonDecode(response.body);
-        print("Erro: ${errorResponse['message']}");
         await ArtSweetAlert.show(
           context: context,
           artDialogArgs: ArtDialogArgs(
             title: "Erro",
-            text: "Falha ao cadastrar o beneficiário.",
+            text: "Falha ao cadastrar o beneficiário: ${errorResponse['message']}",
             type: ArtSweetAlertType.danger,
           ),
         );
       }
-    } catch (e) {
-      print("Erro: $e");
+    } catch (e) { // Caso ocorra erro na requisição
       await ArtSweetAlert.show(
         context: context,
         artDialogArgs: ArtDialogArgs(
@@ -102,23 +105,26 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
       appBar: AppBar(
         backgroundColor: Color(0xFF0000FF),
         iconTheme: IconThemeData(color: Colors.white),
-        title: Padding(
-          padding: const EdgeInsets.only(top: 5.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Página de Beneficiados',
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
-              SizedBox(height: 4),
-            ],
-          ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Cadastro de Beneficiário',
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            SizedBox(height: 4),
+          ],
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
@@ -131,14 +137,13 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
             },
           ),
         ],
-        toolbarHeight: 80, // Altura ajustada para 80px
+        toolbarHeight: 80,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Campos de entrada existentes
             TextField(
               controller: _nameController,
               decoration: InputDecoration(
@@ -149,8 +154,7 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
               ),
             ),
             SizedBox(height: 10),
@@ -164,8 +168,7 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
               ),
             ),
             SizedBox(height: 10),
@@ -179,8 +182,7 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
               ),
             ),
             SizedBox(height: 10),
@@ -203,18 +205,15 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
               }).toList(),
               onChanged: (String? newValue) {
                 setState(() {
-                  _selectedType = newValue; // Atualiza o tipo selecionado
-                  _showNewInputs =
-                      true; // Mostra novos campos quando um tipo é selecionado
-                  _additionalField1Controller.clear(); // Limpa o controlador
-                  _additionalField2Controller.clear(); // Limpa o controlador
+                  _selectedType = newValue;
+                  _showNewInputs = true;
+                  _additionalField1Controller.clear();
+                  _additionalField2Controller.clear();
                 });
               },
-              value: _selectedType, // Define o valor selecionado
+              value: _selectedType,
             ),
             SizedBox(height: 20),
-
-            // Campos de entrada adicionais que aparecem quando um tipo é selecionado
             if (_showNewInputs) ...[
               if (_selectedType == 'Professor') ...[
                 TextField(
@@ -227,8 +226,7 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                   ),
                 ),
                 SizedBox(height: 10),
@@ -243,8 +241,7 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                   ),
                 ),
                 SizedBox(height: 10),
@@ -259,8 +256,7 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                   ),
                 ),
                 SizedBox(height: 10),
@@ -268,29 +264,28 @@ class _CadastroBeneficiarioPageState extends State<CadastroBeneficiarioPage> {
             ],
             ElevatedButton(
               onPressed: _confirm,
-              child: Text('Cadastrar'),
+              child: Text('Cadastrar Beneficiário'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF0000FF), // Cor do botão
-                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                backgroundColor: Colors.transparent,
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                textStyle: TextStyle(fontSize: 16),
               ),
             ),
           ],
         ),
       ),
       bottomNavigationBar: BottomNavBar(
-        selectedIndex: -1,
+        selectedIndex: 1, // Índice da página de empréstimo
         onItemTapped: (index) {
           if (index == 0) {
             Navigator.pushReplacementNamed(context, '/home');
           } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/emprestimo');
-          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/beneficiados');
-          } else if (index == 3) {
+          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/itens');
           }
         },
-      ), // Exibe a barra de navegação inferior
+      ),
     );
   }
 }

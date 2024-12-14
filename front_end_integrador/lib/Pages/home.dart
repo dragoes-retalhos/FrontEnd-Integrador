@@ -1,10 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:front_integrador/Pages/Inventario.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'emprestimo.dart';
 import 'perfil.dart';
 import '../Components/bottomNavBar.dart';
+import '../service/auth_service.dart';
+import 'notificacao_page.dart';
+import 'retorno_emprestimo.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<dynamic> activeLoans = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchLoans();
+  }
+
+  Future<void> fetchLoans() async {
+    final url = Uri.parse('http://localhost:8080/api/loan/dinamic');
+
+    try {
+      final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+
+        // Filtrar empréstimos com status "ATIVO"
+        setState(() {
+          activeLoans =
+              data.where((loan) => loan['status'] == "ATIVO").toList();
+        });
+      } else if (response.statusCode == 401) {
+        print("Token expirado ou inválido. Faça login novamente.");
+        // Redirecionar para a tela de login se necessário
+      } else {
+        print("Erro ao buscar empréstimos: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Erro ao realizar a requisição: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,17 +76,19 @@ class HomePage extends StatelessWidget {
                 style: TextStyle(color: Colors.white, fontSize: 20),
               ),
               SizedBox(height: 4),
-              Text(
-                'Olá, Name',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
             ],
           ),
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
@@ -53,14 +110,13 @@ class HomePage extends StatelessWidget {
           children: [
             SizedBox(height: 20),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildImageButton(
                     context, 'assets/images/icon_emprestimo.png', 'Empréstimo'),
+                SizedBox(width: 16), // Espaçamento entre os cards
                 _buildImageButton(
                     context, 'assets/images/icon_inventario.png', 'Inventário'),
-                _buildImageButton(
-                    context, 'assets/images/icon_relatorio.png', 'Relatórios'),
               ],
             ),
             SizedBox(height: 20),
@@ -89,10 +145,20 @@ class HomePage extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
-            _buildItemCard('Notebook', 'Emprestado',
-                'Rua Armando Luis Arrosi 1370', 'Notebook Pichau Gamer'),
-            _buildItemCard('Notebook', 'Emprestado',
-                'Rua Armando Luis Arrosi 1370', 'Notebook Pichau Gamer'),
+            Expanded(
+              child: ListView.builder(
+                itemCount: activeLoans.length,
+                itemBuilder: (context, index) {
+                  final loan = activeLoans[index];
+                  return _buildItemCard(
+                    loan['id'].toString(), // Convertendo o ID para String
+                    loan['loanedItems'] ?? 'Item desconhecido',
+                    loan['loanDate'] ?? 'Data não informada',
+                    loan['expectedReturnDate'] ?? 'Data não informada',
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -102,10 +168,8 @@ class HomePage extends StatelessWidget {
           if (index == 0) {
             Navigator.pushReplacementNamed(context, '/home');
           } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/import');
-          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/beneficiados');
-          } else if (index == 3) {
+          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/itens');
           }
         },
@@ -172,25 +236,54 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildItemCard(
-      String title, String status, String location, String description) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      margin: EdgeInsets.symmetric(vertical: 10),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 5),
-            Text('Status: $status'),
-            Text('Localização: $location'),
-            Text('Descrição: $description'),
-          ],
+      String loanId, // Recebendo o id do empréstimo
+      String item,
+      String loanDate,
+      String expectedReturnDate) {
+    String formatDate(String date) {
+      if (date == "Data não informada") return "Data não disponível";
+      // Convertendo a data string para formato desejado
+      try {
+        final parsedDate = DateTime.parse(date);
+        return "${parsedDate.day}/${parsedDate.month}/${parsedDate.year}";
+      } catch (e) {
+        return "Data inválida";
+      }
+    }
+
+    return GestureDetector(
+      onTap: () {
+        // Quando o card for clicado, direciona para a página de retorno
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ReturnLoanPage(
+              loanId: loanId,
+              item: item,
+              loanDate: loanDate,
+              expectedReturnDate: expectedReturnDate,
+            ),
+          ),
+        );
+      },
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        margin: EdgeInsets.symmetric(vertical: 10),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(item,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              SizedBox(height: 5),
+              Text('Data de Empréstimo: ${formatDate(loanDate)}'),
+              Text('Data de Previsão: ${formatDate(expectedReturnDate)}'),
+            ],
+          ),
         ),
       ),
     );

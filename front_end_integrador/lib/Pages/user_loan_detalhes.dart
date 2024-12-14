@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'perfil.dart';
 import '../Components/bottomNavBar.dart';
 import '../models/user_loan.dart';
+import 'notificacao_page.dart';
 
 class DetalhesBeneficiarioPage extends StatefulWidget {
   final UserLoan userLoan;
@@ -19,50 +20,14 @@ class _DetalhesBeneficiarioPageState extends State<DetalhesBeneficiarioPage> {
   late String _selectedStatus;
   late String _selectedType;
 
-  final List<String> _statusOptions = ['ACTIVE', 'DISABLED'];
-  final List<String> _typeOptions = ['TEACHER', 'STUDENT', 'ENTERPRISE'];
+  final List<String> _statusOptions = ['ATIVO', 'DESATIVADO'];
+  final List<String> _typeOptions = ['PROFESSOR', 'ALUNO', 'EMPRESA'];
 
   @override
   void initState() {
     super.initState();
     _selectedStatus = widget.userLoan.statusUserEnum;
     _selectedType = widget.userLoan.typeUserLoanEnum;
-  }
-
-  Widget _buildLoanCard(Map<String, dynamic> loan) {
-    final returnDate = loan['returnDate'] != null
-        ? loan['returnDate'].join('/')
-        : 'Data não disponível';
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Empréstimo ID: ${loan['id']}'),
-            Text('Status: ${loan['status']}'),
-            Text('Data de Devolução: $returnDate'),
-            Text('Nome do Usuário: ${loan['userName']}'),
-            SizedBox(height: 8.0),
-            Text('Itens Emprestados:'),
-            ...loan['loanedItems'].map<Widget>((item) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                        '- ${item['nameItem']} (${item['brand']} ${item['model']})'),
-                    Text('Serial Number: ${item['serialNumber']}'),
-                  ],
-                ),
-              );
-            }).toList(),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -79,9 +44,15 @@ class _DetalhesBeneficiarioPageState extends State<DetalhesBeneficiarioPage> {
           ),
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
@@ -99,44 +70,48 @@ class _DetalhesBeneficiarioPageState extends State<DetalhesBeneficiarioPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildReadOnlyInput('Nome', widget.userLoan.name),
-            SizedBox(height: 8),
-            _buildReadOnlyInput('Email', widget.userLoan.email),
-            SizedBox(height: 8),
-            _buildReadOnlyInput('RNA', widget.userLoan.rna),
-            SizedBox(height: 8),
-            _buildReadOnlyInput('Empresa', widget.userLoan.enterprise),
-            SizedBox(height: 8),
-            _buildReadOnlyInput('Identificação', widget.userLoan.identification),
-            SizedBox(height: 8),
-            _buildReadOnlyInput('Telefone', widget.userLoan.phone),
-            SizedBox(height: 8),
-            _buildReadOnlyInput('Status', widget.userLoan.statusUserEnum),
-            SizedBox(height: 8),
-            _buildReadOnlyInput('Tipo', widget.userLoan.typeUserLoanEnum),
-            SizedBox(height: 16),
             Expanded(
-              child: ListView(
-                children: widget.userLoan.loans.map<Widget>((loan) {
-                  return _buildLoanCard(loan);
-                }).toList(),
+              child: SingleChildScrollView(
+                child: Center(
+                  child: Wrap(
+                    spacing: 16,
+                    runSpacing: 16,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      _buildReadOnlyInput('Nome', widget.userLoan.name),
+                      _buildReadOnlyInput('Email', widget.userLoan.email),
+                      if (_selectedType != 'EMPRESA')
+                        _buildReadOnlyInput('RNA', widget.userLoan.rna),
+                      if (_selectedType != 'ALUNO' &&
+                          _selectedType != 'PROFESSOR')
+                        _buildReadOnlyInput(
+                            'Empresa', widget.userLoan.enterprise),
+                      if (_selectedType != 'EMPRESA' && _selectedType != 'ALUNO')
+                        _buildReadOnlyInput(
+                            'Identificação', widget.userLoan.identification),
+                      _buildReadOnlyInput('Telefone', widget.userLoan.phone),
+                      _buildReadOnlyInput(
+                          'Status', widget.userLoan.statusUserEnum),
+                      _buildReadOnlyInput(
+                          'Tipo', widget.userLoan.typeUserLoanEnum),
+                    ],
+                  ),
+                ),
               ),
             ),
+            SizedBox(height: 16),
           ],
         ),
       ),
       bottomNavigationBar: BottomNavBar(
-        selectedIndex: 2,
+        selectedIndex: 1, // Índice da página de empréstimo
         onItemTapped: (index) {
           if (index == 0) {
             Navigator.pushReplacementNamed(context, '/home');
           } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/import');
-          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/beneficiados');
-          } else if (index == 3) {
+          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/itens');
           }
         },
@@ -146,29 +121,29 @@ class _DetalhesBeneficiarioPageState extends State<DetalhesBeneficiarioPage> {
 
   Widget _buildReadOnlyInput(String label, String value) {
     return Container(
-      height: 35,
+      width: MediaQuery.of(context).size.width * 0.8, // Adapta o tamanho
       child: TextFormField(
         decoration: InputDecoration(
           labelText: label,
           border: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF5664F5)),
-            borderRadius: BorderRadius.circular(30.0),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: Color.fromARGB(100, 86, 100, 245)),
           ),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF5664F5)),
-            borderRadius: BorderRadius.circular(30.0),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: Color.fromARGB(100, 86, 100, 245)),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF5664F5)),
-            borderRadius: BorderRadius.circular(30.0),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: Color.fromARGB(100, 86, 100, 245)),
           ),
           filled: true,
           fillColor: Colors.transparent,
-          contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 14.0),
+          contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         ),
         initialValue: value,
         readOnly: true,
-        textAlign: TextAlign.center,
+        textAlign: TextAlign.start,
       ),
     );
   }

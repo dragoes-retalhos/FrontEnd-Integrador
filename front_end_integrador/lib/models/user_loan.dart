@@ -32,8 +32,8 @@ class UserLoan {
       enterprise: json['enterprise'] ?? 'Empresa não informada', // Valor padrão para empresa
       identification: json['identification'] ?? 'Identificação não informada', // Valor padrão para identificação
       phone: json['phone'] ?? 'Telefone não informado', // Valor padrão para telefone
-      statusUserEnum: json['statusUserEnum'] ?? '0', // Valor padrão para status
-      typeUserLoanEnum: json['typeUserLoanEnum'] ?? '0', // Valor padrão para tipo
+      statusUserEnum: json['status'] ?? 'status', // Valor padrão para status
+      typeUserLoanEnum: json['typeUserLoan'] ?? '0', // Valor padrão para tipo
       loans: json['loans'] ?? [], // Lista padrão vazia se loans for null
     );
   }

@@ -16,10 +16,6 @@ class BottomNavBar extends StatelessWidget {
           label: 'Home',
         ),
         BottomNavigationBarItem(
-          icon: ImageIcon(AssetImage('assets/images/icon_import.png')),
-          label: 'Importar',
-        ),
-        BottomNavigationBarItem(
           icon: Icon(Icons.people),
           label: 'Beneficiados',
         ),

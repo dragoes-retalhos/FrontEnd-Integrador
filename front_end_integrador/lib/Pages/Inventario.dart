@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import '../Pages/perfil.dart';
 import '../Components/bottomNavBar.dart';
 import '../Pages/InventarioItem.dart';
+import '../service/auth_service.dart';
+import 'notificacao_page.dart';
 
 class InventarioPage extends StatefulWidget {
   @override
@@ -23,7 +25,7 @@ class _InventarioPageState extends State<InventarioPage> {
     super.initState();
     fetchItems();
 
-    // Ouvir as mudanças de foco
+  
     focusNode.addListener(() {
       setState(() {
         if (focusNode.hasFocus) {
@@ -39,8 +41,19 @@ class _InventarioPageState extends State<InventarioPage> {
 
   Future<void> fetchItems() async {
     try {
-      final response = await http
-          .get(Uri.parse('http://localhost:8080/api/item/dynamiclist'));
+      final token = await AuthService.getToken();
+      if (token == null) {
+        print("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
+      final response = await http.get(
+        Uri.parse('http://localhost:8080/api/item/dynamiclist'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
@@ -87,9 +100,15 @@ class _InventarioPageState extends State<InventarioPage> {
           ),
         ),
         actions: [
-          Padding(
+          IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
-            child: Icon(Icons.notifications, color: Colors.white, size: 28),
+            icon: Icon(Icons.notifications, color: Colors.white, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             padding: const EdgeInsets.only(right: 20.0, top: 10.0),
@@ -145,15 +164,13 @@ class _InventarioPageState extends State<InventarioPage> {
         ),
       ),
       bottomNavigationBar: BottomNavBar(
-        selectedIndex: -1,
+        selectedIndex: 0, // Índice da página de empréstimo
         onItemTapped: (index) {
           if (index == 0) {
             Navigator.pushReplacementNamed(context, '/home');
           } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/emprestimo');
-          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/beneficiados');
-          } else if (index == 3) {
+          } else if (index == 2) {
             Navigator.pushReplacementNamed(context, '/itens');
           }
         },
